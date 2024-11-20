@@ -1,11 +1,11 @@
-import { WeatherInfo } from "@/lib/types";
+import { WeatherInfo as WeatherInfoType } from "@/lib/types";
 import { CloudRainIcon, ThermometerIcon } from "lucide-react";
 
 interface Props {
-  data: WeatherInfo;
+  data: WeatherInfoType;
 }
 
-export const WeatherInfo = ({ data }: Props) => {
+export const WeatherDisplay = ({ data }: Props) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg animate-fade-in">
       <h2 className="text-xl font-semibold mb-4">Weather Conditions</h2>

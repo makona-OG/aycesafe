@@ -1,7 +1,7 @@
 import { Header } from "@/components/Layout/Header";
 import { WaterLevelGauge } from "@/components/Dashboard/WaterLevelGauge";
 import { HistoricalChart } from "@/components/Dashboard/HistoricalChart";
-import { WeatherInfo } from "@/components/Dashboard/WeatherInfo";
+import { WeatherDisplay } from "@/components/Dashboard/WeatherInfo";
 import { AlertStatus } from "@/components/Dashboard/AlertStatus";
 
 // Mock data - In a real app, this would come from an API
@@ -38,7 +38,7 @@ const Index = () => {
             <HistoricalChart data={mockHistoricalData} />
           </div>
           <div>
-            <WeatherInfo data={mockWeather} />
+            <WeatherDisplay data={mockWeather} />
           </div>
         </div>
       </main>
