@@ -9,9 +9,11 @@ export const LocationMap = () => {
       const loader = new Loader({
         apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY!,
         version: 'weekly',
+        libraries: ['maps']
       });
 
-      const { Map, Marker } = await loader.importLibrary('maps');
+      const { Map } = await loader.importLibrary('maps');
+      const { Marker } = await google.maps.importLibrary('marker');
 
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
