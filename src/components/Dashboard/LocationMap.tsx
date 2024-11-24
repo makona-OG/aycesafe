@@ -7,11 +7,11 @@ export const LocationMap = () => {
   useEffect(() => {
     const initMap = async () => {
       const loader = new Loader({
-        apiKey: process.env.GOOGLE_MAPS_API_KEY!,
+        apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY!,
         version: 'weekly',
       });
 
-      const { Map } = await loader.importLibrary('maps');
+      const { Map, Marker } = await loader.importLibrary('maps');
 
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -36,7 +36,7 @@ export const LocationMap = () => {
               ]
             });
 
-            new google.maps.Marker({
+            new Marker({
               position: { lat: latitude, lng: longitude },
               map,
               title: 'Your Location'
