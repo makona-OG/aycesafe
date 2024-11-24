@@ -3,13 +3,13 @@ import { toast } from 'sonner';
 
 const TWILIO_ACCOUNT_SID = 'AC1af93a201df4c52a7dd8219005d82f3a';
 const TWILIO_AUTH_TOKEN = '7ead3800a27806c1eb51675e15bba597';
-const TWILIO_PHONE_NUMBER = '+17035954060';
+const TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886'; // Twilio's default WhatsApp testing number
 
 export const sendSMSAlert = async (message: string) => {
   try {
     const formData = new URLSearchParams();
-    formData.append('To', '+254712961615');
-    formData.append('From', TWILIO_PHONE_NUMBER);
+    formData.append('To', 'whatsapp:+254712961615'); // Add whatsapp: prefix
+    formData.append('From', TWILIO_WHATSAPP_NUMBER);
     formData.append('Body', message);
 
     const response = await axios({
@@ -25,11 +25,11 @@ export const sendSMSAlert = async (message: string) => {
       }
     });
 
-    toast.success('Alert SMS sent successfully');
+    toast.success('Alert WhatsApp message sent successfully');
     return response.data;
   } catch (error: any) {
-    console.error('Error sending SMS:', error.response?.data || error);
-    toast.error('Failed to send SMS alert');
+    console.error('Error sending WhatsApp message:', error.response?.data || error);
+    toast.error('Failed to send WhatsApp alert');
     throw error;
   }
 };

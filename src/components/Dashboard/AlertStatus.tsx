@@ -17,10 +17,10 @@ export const AlertStatus = ({ status }: Props) => {
       if (status !== lastAlertSent.current) {
         try {
           if (status === 'danger') {
-            await sendSMSAlert('URGENT: Critical water levels detected in your area. Please take immediate action.');
+            await sendSMSAlert('🚨 *URGENT*: Critical water levels detected in your area. Please take immediate action.');
             lastAlertSent.current = 'danger';
           } else if (status === 'warning') {
-            await sendSMSAlert('WARNING: Water levels are rising in your area. Stay alert.');
+            await sendSMSAlert('⚠️ *WARNING*: Water levels are rising in your area. Stay alert.');
             lastAlertSent.current = 'warning';
           } else {
             // Reset the last alert when status returns to safe
@@ -28,7 +28,7 @@ export const AlertStatus = ({ status }: Props) => {
           }
         } catch (error) {
           console.error('Failed to send alert:', error);
-          toast.error('Failed to send alert SMS');
+          toast.error('Failed to send WhatsApp alert');
         }
       }
     };
