@@ -19,18 +19,18 @@ export default {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: "hsl(220, 13%, 91%)",
+        input: "hsl(220, 13%, 91%)",
+        ring: "hsl(224, 71%, 45%)",
+        background: "hsl(222, 47%, 11%)",
+        foreground: "hsl(213, 31%, 91%)",
         primary: {
-          DEFAULT: "#1E40AF",
-          foreground: "#ffffff",
+          DEFAULT: "hsl(142, 71%, 45%)",
+          foreground: "hsl(222, 47%, 11%)",
         },
         secondary: {
-          DEFAULT: "#0D9488",
-          foreground: "#ffffff",
+          DEFAULT: "hsl(142, 71%, 35%)",
+          foreground: "hsl(222, 47%, 11%)",
         },
         alert: {
           safe: "#22C55E",
@@ -38,24 +38,24 @@ export default {
           danger: "#DC2626",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "hsl(0, 84%, 60%)",
+          foreground: "hsl(210, 40%, 98%)",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "hsl(220, 13%, 91%)",
+          foreground: "hsl(216, 12%, 84%)",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "hsl(142, 71%, 45%)",
+          foreground: "hsl(222, 47%, 11%)",
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "hsl(222, 47%, 11%)",
+          foreground: "hsl(213, 31%, 91%)",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "hsl(222, 47%, 11%)",
+          foreground: "hsl(213, 31%, 91%)",
         },
       },
       keyframes: {

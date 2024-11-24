@@ -1,11 +1,21 @@
 import { WaterLevelData } from "@/lib/types";
 import { AlertCircleIcon } from "lucide-react";
+import { sendSMSAlert } from "@/services/smsService";
+import { useEffect } from "react";
 
 interface Props {
   status: WaterLevelData['status'];
 }
 
 export const AlertStatus = ({ status }: Props) => {
+  useEffect(() => {
+    if (status === 'danger') {
+      sendSMSAlert('URGENT: Critical water levels detected in your area. Please take immediate action.');
+    } else if (status === 'warning') {
+      sendSMSAlert('WARNING: Water levels are rising in your area. Stay alert.');
+    }
+  }, [status]);
+
   const getStatusConfig = (status: WaterLevelData['status']) => {
     switch (status) {
       case 'safe':
