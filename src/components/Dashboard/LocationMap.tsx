@@ -1,8 +1,18 @@
-import { useEffect, useRef, useState } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
+import { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { fetchWeatherData } from '@/services/weatherService';
 import { useToast } from '@/components/ui/use-toast';
 import { WeatherInfo } from '@/lib/types';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for default marker icon
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 interface LocationData {
   lat: number;
@@ -10,90 +20,59 @@ interface LocationData {
 }
 
 export const LocationMap = () => {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const [location, setLocation] = useState<LocationData | null>(null);
+  const [location, setLocation] = useState<LocationData>({ lat: 51.505, lng: -0.09 });
   const { toast } = useToast();
 
   useEffect(() => {
-    const initMap = async () => {
-      const loader = new Loader({
-        apiKey: 'AIzaSyBNLrJhOMz6idD05pzfn5lhA-TAw-mAZCU',
-        version: 'weekly',
-        libraries: ['maps', 'marker'],
-        mapIds: ['8f348cef7b6e6671'] // Add a valid Map ID
-      });
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude: lat, longitude: lng } = position.coords;
+          setLocation({ lat, lng });
 
-      const { Map } = await loader.importLibrary('maps') as google.maps.MapsLibrary;
-      const { AdvancedMarkerElement } = await loader.importLibrary('marker') as google.maps.MarkerLibrary;
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude: lat, longitude: lng } = position.coords;
-            setLocation({ lat, lng });
-
-            const map = new Map(mapRef.current!, {
-              center: { lat, lng },
-              zoom: 15,
-              mapId: '8f348cef7b6e6671', // Use the same Map ID here
-              styles: [
-                {
-                  elementType: "geometry",
-                  stylers: [{ color: "#242f3e" }]
-                },
-                {
-                  elementType: "labels.text.stroke",
-                  stylers: [{ color: "#242f3e" }]
-                },
-                {
-                  elementType: "labels.text.fill",
-                  stylers: [{ color: "#746855" }]
-                }
-              ]
-            });
-
-            // Create a custom marker element
-            const markerElement = document.createElement('div');
-            markerElement.className = 'custom-marker';
-            markerElement.innerHTML = `
-              <div class="bg-white p-2 rounded-lg shadow-lg border-2 border-primary">
-                <div class="font-semibold text-primary">Your Location</div>
-                <div class="text-sm text-gray-600">Lat: ${lat.toFixed(4)}</div>
-                <div class="text-sm text-gray-600">Lng: ${lng.toFixed(4)}</div>
-              </div>
-            `;
-
-            // Create and add the custom marker to the map
-            new AdvancedMarkerElement({
-              position: { lat, lng },
-              map,
-              content: markerElement
-            });
-
-            try {
-              const weatherData = await fetchWeatherData(lat, lng);
-              toast({
-                title: "Weather Updated",
-                description: `Current temperature: ${weatherData.temperature}°C, ${weatherData.condition}`,
-              });
-            } catch (error) {
-              console.error('Error fetching weather:', error);
-            }
-          },
-          (error) => {
-            console.error('Error getting location:', error);
+          try {
+            const weatherData = await fetchWeatherData(lat, lng);
             toast({
-              title: "Error",
-              description: "Could not get your location. Please enable location services.",
-              variant: "destructive",
+              title: "Weather Updated",
+              description: `Current temperature: ${weatherData.temperature}°C, ${weatherData.condition}`,
             });
+          } catch (error) {
+            console.error('Error fetching weather:', error);
           }
-        );
-      }
-    };
-
-    initMap();
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          toast({
+            title: "Error",
+            description: "Could not get your location. Please enable location services.",
+            variant: "destructive",
+          });
+        }
+      );
+    }
   }, [toast]);
 
-  return <div ref={mapRef} className="w-full h-[400px] rounded-lg shadow-lg" />;
+  return (
+    <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
+      <MapContainer
+        center={[location.lat, location.lng]}
+        zoom={13}
+        className="w-full h-full"
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={[location.lat, location.lng]}>
+          <Popup>
+            <div className="p-2">
+              <div className="font-semibold">Your Location</div>
+              <div className="text-sm">Lat: {location.lat.toFixed(4)}</div>
+              <div className="text-sm">Lng: {location.lng.toFixed(4)}</div>
+            </div>
+          </Popup>
+        </Marker>
+      </MapContainer>
+    </div>
+  );
 };
