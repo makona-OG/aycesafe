@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 // Configure the phone number here
-const CONFIGURED_PHONE_NUMBER = '+1234567890'; // Replace with your actual phone number
+const CONFIGURED_PHONE_NUMBER = '+1234567890'; // Replace with actual number
 
 interface Props {
   status: WaterLevelData['status'];
@@ -23,29 +23,25 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           let message = '';
           if (status === 'danger' && status !== lastStatus) {
             message = '🚨 *URGENT*: Critical water levels detected! Current level exceeds safety threshold. Please take immediate action.';
-            await sendSMSAlert(message, CONFIGURED_PHONE_NUMBER);
-            setLastStatus('danger');
           } else if (status === 'warning' && status !== lastStatus) {
             message = '⚠️ *WARNING*: Water levels are rising significantly. Current conditions require attention.';
-            await sendSMSAlert(message, CONFIGURED_PHONE_NUMBER);
-            setLastStatus('warning');
           } else if (status === 'safe' && lastStatus !== 'safe') {
             message = '✅ *UPDATE*: Water levels have returned to safe levels.';
-            await sendSMSAlert(message, CONFIGURED_PHONE_NUMBER);
-            setLastStatus('safe');
           }
           
           if (message) {
+            await sendSMSAlert(message, CONFIGURED_PHONE_NUMBER);
             toast.success('Alert sent successfully!');
+            setLastStatus(status);
             onAlertSent?.({
               timestamp: new Date().toISOString(),
               status,
               message
             });
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error('Failed to send alert:', error);
-          toast.error('Failed to send alert. Please check the system configuration.');
+          toast.error(error.message || 'Failed to send alert. Please check the system configuration.');
         }
       }
     };

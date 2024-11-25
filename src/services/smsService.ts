@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// Use environment variable or fallback to localhost
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const sendSMSAlert = async (message: string, to: string) => {
@@ -11,11 +12,17 @@ export const sendSMSAlert = async (message: string, to: string) => {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },
+      timeout: 5000 // 5 second timeout
     });
     return response.data;
-  } catch (error) {
-    console.error('Error sending message:', error);
+  } catch (error: any) {
+    if (error.code === 'ERR_NETWORK') {
+      throw new Error('Cannot connect to SMS service. Please ensure the backend server is running.');
+    }
+    if (error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
     throw error;
   }
 };

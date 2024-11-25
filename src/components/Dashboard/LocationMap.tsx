@@ -72,8 +72,8 @@ export const LocationMap = () => {
     <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
       <MapContainer 
         style={{ height: '100%', width: '100%' }}
-        center={[location.lat, location.lng]}
-        zoom={13}
+        defaultCenter={[location.lat, location.lng]} 
+        defaultZoom={13}
         scrollWheelZoom={false}
       >
         <MapUpdater center={[location.lat, location.lng]} />
