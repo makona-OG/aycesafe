@@ -27,7 +27,7 @@ function MapUpdater({ center }: { center: [number, number] }) {
 }
 
 export const LocationMap = () => {
-  const [location, setLocation] = useState<LocationData>({ lat: 51.505, lng: -0.09 });
+  const [location, setLocation] = useState<LocationData>({ lat: -1.2921, lng: 36.8219 }); // Default to Nairobi
   const { toast } = useToast();
 
   useEffect(() => {
@@ -71,9 +71,9 @@ export const LocationMap = () => {
   return (
     <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
       <MapContainer 
-        className="h-full w-full"
+        style={{ height: '100%', width: '100%' }}
         center={[location.lat, location.lng]} 
-        zoom={13} 
+        zoom={13}
         scrollWheelZoom={false}
       >
         <MapUpdater center={[location.lat, location.lng]} />
