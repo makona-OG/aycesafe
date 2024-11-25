@@ -96,7 +96,7 @@ export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
             WhatsApp alerts will be sent to: {phoneNumber}
           </p>
           <p className="text-xs opacity-75">
-            First time? Send "join" to {process.env.TWILIO_WHATSAPP_NUMBER || '+14155238886'} to receive alerts
+            First time? Send "join" to +14155238886 to receive alerts
           </p>
         </div>
       )}
