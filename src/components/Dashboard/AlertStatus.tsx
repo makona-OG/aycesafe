@@ -1,32 +1,41 @@
 import { WaterLevelData } from "@/lib/types";
 import { AlertCircleIcon } from "lucide-react";
 import { sendSMSAlert } from "@/services/smsService";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface Props {
   status: WaterLevelData['status'];
   phoneNumber?: string;
+  onAlertSent?: (log: { timestamp: string; status: WaterLevelData['status']; message: string }) => void;
 }
 
-export const AlertStatus = ({ status, phoneNumber }: Props) => {
+export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
   const lastAlertSent = useRef<string | null>(null);
 
   useEffect(() => {
     const sendAlert = async () => {
-      // Only send if status changed and we haven't sent this type of alert yet
       if (status !== lastAlertSent.current && phoneNumber) {
         try {
+          let message = '';
           if (status === 'danger') {
-            await sendSMSAlert('🚨 *URGENT*: Critical water levels detected in your area. Please take immediate action.', phoneNumber);
+            message = '🚨 *URGENT*: Critical water levels detected in your area. Please take immediate action.';
+            await sendSMSAlert(message, phoneNumber);
             lastAlertSent.current = 'danger';
           } else if (status === 'warning') {
-            await sendSMSAlert('⚠️ *WARNING*: Water levels are rising in your area. Stay alert.', phoneNumber);
+            message = '⚠️ *WARNING*: Water levels are rising in your area. Stay alert.';
+            await sendSMSAlert(message, phoneNumber);
             lastAlertSent.current = 'warning';
           } else {
-            // Reset the last alert when status returns to safe
             lastAlertSent.current = null;
+            return;
           }
+          
+          onAlertSent?.({
+            timestamp: new Date().toISOString(),
+            status,
+            message
+          });
         } catch (error) {
           console.error('Failed to send alert:', error);
           toast.error('Failed to send WhatsApp alert');
@@ -35,7 +44,7 @@ export const AlertStatus = ({ status, phoneNumber }: Props) => {
     };
 
     sendAlert();
-  }, [status, phoneNumber]);
+  }, [status, phoneNumber, onAlertSent]);
 
   const getStatusConfig = (status: WaterLevelData['status']) => {
     switch (status) {

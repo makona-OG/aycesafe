@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { fetchWeatherData } from '@/services/weatherService';
 import { useToast } from '@/components/ui/use-toast';
 import { WeatherInfo } from '@/lib/types';
@@ -17,6 +17,15 @@ L.Icon.Default.mergeOptions({
 interface LocationData {
   lat: number;
   lng: number;
+}
+
+// Component to handle map center updates
+function MapUpdater({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center);
+  }, [center, map]);
+  return null;
 }
 
 export const LocationMap = () => {
@@ -56,10 +65,11 @@ export const LocationMap = () => {
     <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
       <MapContainer 
         style={{ height: '100%', width: '100%' }}
-        center={[location.lat, location.lng]} 
+        center={[51.505, -0.09]} 
         zoom={13} 
         scrollWheelZoom={false}
       >
+        <MapUpdater center={[location.lat, location.lng]} />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
