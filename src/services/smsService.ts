@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'http://238c205e-99b9-4429-b4d0-909d4fc6f115.lovableproject.com/api';
+const BACKEND_URL = 'https://238c205e-99b9-4429-b4d0-909d4fc6f115.lovableproject.com/api';
 
 export const sendSMSAlert = async (message: string, to: string) => {
   try {

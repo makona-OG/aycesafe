@@ -18,7 +18,11 @@ interface LocationData {
   lng: number;
 }
 
-function MapUpdater({ center }: { center: [number, number] }) {
+interface MapUpdaterProps {
+  center: [number, number];
+}
+
+function MapUpdater({ center }: MapUpdaterProps) {
   const map = useMap();
   useEffect(() => {
     map.setView(center);
@@ -71,17 +75,17 @@ export const LocationMap = () => {
   return (
     <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
       <MapContainer 
-        center={[location.lat, location.lng] as [number, number]} 
-        zoom={13}
+        center={[location.lat, location.lng]}
+        zoom={13} 
         scrollWheelZoom={false}
         style={{ height: '100%', width: '100%' }}
       >
-        <MapUpdater center={[location.lat, location.lng] as [number, number]} />
+        <MapUpdater center={[location.lat, location.lng]} />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <Marker position={[location.lat, location.lng] as [number, number]}>
+        <Marker position={[location.lat, location.lng]}>
           <Popup>
             <div className="p-2">
               <div className="font-semibold">Your Location</div>
