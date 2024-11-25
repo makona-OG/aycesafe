@@ -8,6 +8,12 @@ import { LocationMap } from "@/components/Dashboard/LocationMap";
 import { useState, useEffect } from "react";
 import { WaterLevelData, WeatherInfo } from "@/lib/types";
 import { fetchWeatherData } from "@/services/weatherService";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { sendSMSAlert } from "@/services/smsService";
+import { toast } from "sonner";
 
 const Index = () => {
   const [waterLevel, setWaterLevel] = useState<WaterLevelData>({
@@ -21,6 +27,9 @@ const Index = () => {
     condition: "Loading...",
     rainfall: 0
   });
+
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   // Simulate water level changes for demonstration
   useEffect(() => {
@@ -55,6 +64,38 @@ const Index = () => {
     }
   }, []);
 
+  // Send SMS updates periodically when enabled
+  useEffect(() => {
+    if (!notificationsEnabled || !phoneNumber) return;
+
+    const sendUpdate = async () => {
+      const message = `
+🌊 Water Level Update:
+Level: ${waterLevel.level}m
+Status: ${waterLevel.status.toUpperCase()}
+Temperature: ${weather.temperature}°C
+Condition: ${weather.condition}
+Rainfall: ${weather.rainfall}mm
+      `.trim();
+
+      try {
+        await sendSMSAlert(message);
+        toast.success("Status update sent to your phone");
+      } catch (error) {
+        toast.error("Failed to send status update");
+        setNotificationsEnabled(false);
+      }
+    };
+
+    // Send initial update
+    sendUpdate();
+
+    // Set up periodic updates every 30 minutes
+    const interval = setInterval(sendUpdate, 30 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [notificationsEnabled, phoneNumber, waterLevel, weather]);
+
   const mockHistoricalData = Array.from({ length: 24 }, (_, i) => ({
     timestamp: new Date(Date.now() - i * 3600000).toISOString(),
     level: 2 + Math.random()
@@ -64,6 +105,35 @@ const Index = () => {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Header />
       <main className="container mx-auto py-8 px-4 flex-grow">
+        <div className="mb-6 p-4 bg-white rounded-lg shadow-lg">
+          <h2 className="text-xl font-semibold mb-4">SMS Notifications</h2>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <Input
+                type="tel"
+                placeholder="Enter your phone number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="max-w-xs"
+              />
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="notifications"
+                  checked={notificationsEnabled}
+                  onCheckedChange={setNotificationsEnabled}
+                  disabled={!phoneNumber}
+                />
+                <Label htmlFor="notifications">Enable SMS updates</Label>
+              </div>
+            </div>
+            {!phoneNumber && (
+              <p className="text-sm text-muted-foreground">
+                Enter your phone number to receive SMS updates about water levels and weather conditions.
+              </p>
+            )}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <AlertStatus status={waterLevel.status} />
