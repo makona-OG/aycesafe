@@ -4,8 +4,8 @@ import { sendSMSAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-// Using a sandbox testing number - this will work with Twilio's sandbox
-const WHATSAPP_NUMBER = '14155238886';
+// Using the provided phone number
+const RECIPIENT_NUMBER = '254712961615';
 
 interface Props {
   status: WaterLevelData['status'];
@@ -30,8 +30,8 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           }
           
           if (message) {
-            await sendSMSAlert(message, WHATSAPP_NUMBER);
-            toast.success('WhatsApp alert sent successfully!');
+            await sendSMSAlert(message, RECIPIENT_NUMBER);
+            toast.success('Alert sent successfully!');
             setLastStatus(status);
             onAlertSent?.({
               timestamp: new Date().toISOString(),
@@ -41,7 +41,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           }
         } catch (error: any) {
           console.error('Failed to send alert:', error);
-          toast.error('Failed to send WhatsApp alert. Make sure you have joined the Twilio WhatsApp sandbox.');
+          toast.error('Failed to send alert. Please check your Twilio configuration.');
         }
       }
     };
@@ -98,7 +98,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
       </div>
       <p className="mt-2 text-lg font-bold">{config.message}</p>
       <p className="mt-2 text-sm opacity-75">
-        WhatsApp alerts are enabled. Join Twilio sandbox by sending "join plenty-drawn" to +1 415 523 8886
+        SMS alerts are enabled and will be sent to your configured number
       </p>
     </div>
   );
