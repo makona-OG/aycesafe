@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 export const sendSMSAlert = async (message: string, to: string) => {
   try {
     // Format WhatsApp number if it doesn't include WhatsApp prefix
-    const formattedNumber = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
+    const formattedNumber = to.startsWith('whatsapp:') ? to : `whatsapp:+${to.replace(/^\+/, '')}`;
     
     const response = await axios.post(`${API_URL}/send-message`, {
       message,

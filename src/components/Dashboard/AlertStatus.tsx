@@ -4,8 +4,8 @@ import { sendSMSAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-// Configure the phone number here
-const CONFIGURED_PHONE_NUMBER = '+1234567890'; // Replace with actual number
+// Configure the WhatsApp number here (include country code without +)
+const CONFIGURED_PHONE_NUMBER = '1234567890'; // Replace with actual number
 
 interface Props {
   status: WaterLevelData['status'];
