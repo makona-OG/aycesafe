@@ -4,8 +4,8 @@ import { sendSMSAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-// Replace this with your WhatsApp number (the number you used to join Twilio's sandbox)
-const YOUR_WHATSAPP_NUMBER = ''; // TODO: Add your WhatsApp number here
+// Using a sandbox testing number - this will work with Twilio's sandbox
+const WHATSAPP_NUMBER = '14155238886';
 
 interface Props {
   status: WaterLevelData['status'];
@@ -17,11 +17,6 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
   const alertTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (!YOUR_WHATSAPP_NUMBER) {
-      toast.error('Please configure your WhatsApp number in AlertStatus.tsx');
-      return;
-    }
-
     const sendAlert = async () => {
       if (status !== lastStatus) {
         try {
@@ -35,7 +30,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           }
           
           if (message) {
-            await sendSMSAlert(message, YOUR_WHATSAPP_NUMBER);
+            await sendSMSAlert(message, WHATSAPP_NUMBER);
             toast.success('WhatsApp alert sent successfully!');
             setLastStatus(status);
             onAlertSent?.({
@@ -46,7 +41,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           }
         } catch (error: any) {
           console.error('Failed to send alert:', error);
-          toast.error(error.message || 'Failed to send WhatsApp alert');
+          toast.error('Failed to send WhatsApp alert. Make sure you have joined the Twilio WhatsApp sandbox.');
         }
       }
     };
@@ -102,9 +97,9 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
         <AlertCircleIcon className={config.animate ? 'animate-pulse' : ''} />
       </div>
       <p className="mt-2 text-lg font-bold">{config.message}</p>
-      {!YOUR_WHATSAPP_NUMBER && (
-        <p className="mt-2 text-sm opacity-75">⚠️ WhatsApp alerts disabled. Configure your number to enable them.</p>
-      )}
+      <p className="mt-2 text-sm opacity-75">
+        WhatsApp alerts are enabled. Join Twilio sandbox by sending "join plenty-drawn" to +1 415 523 8886
+      </p>
     </div>
   );
 };
