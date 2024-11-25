@@ -1,58 +1,40 @@
 import axios from 'axios';
 
-// WhatsApp Cloud API configuration
-const WHATSAPP_API_URL = 'https://graph.facebook.com/v17.0';
-const WHATSAPP_PHONE_NUMBER_ID = import.meta.env.VITE_WHATSAPP_PHONE_NUMBER_ID;
-const WHATSAPP_ACCESS_TOKEN = import.meta.env.VITE_WHATSAPP_ACCESS_TOKEN;
+const TWILIO_ACCOUNT_SID = import.meta.env.VITE_TWILIO_ACCOUNT_SID;
+const TWILIO_AUTH_TOKEN = import.meta.env.VITE_TWILIO_AUTH_TOKEN;
+const TWILIO_WHATSAPP_NUMBER = import.meta.env.VITE_TWILIO_WHATSAPP_NUMBER;
 
 export const sendSMSAlert = async (message: string, to: string) => {
   try {
-    // Format the phone number (remove any non-numeric characters and add country code)
-    const formattedNumber = to.replace(/\D/g, '');
-    
+    // Format the phone number to WhatsApp format
+    const formattedTo = `whatsapp:+${to.replace(/\D/g, '')}`;
+    const formattedFrom = `whatsapp:${TWILIO_WHATSAPP_NUMBER}`;
+
     const response = await axios.post(
-      `${WHATSAPP_API_URL}/${WHATSAPP_PHONE_NUMBER_ID}/messages`,
+      `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`,
+      new URLSearchParams({
+        To: formattedTo,
+        From: formattedFrom,
+        Body: message
+      }),
       {
-        messaging_product: "whatsapp",
-        recipient_type: "individual",
-        to: formattedNumber,
-        type: "text",
-        text: { 
-          body: message
-        }
-      },
-      {
+        auth: {
+          username: TWILIO_ACCOUNT_SID,
+          password: TWILIO_AUTH_TOKEN
+        },
         headers: {
-          'Authorization': `Bearer ${WHATSAPP_ACCESS_TOKEN}`,
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded'
         }
       }
     );
-    
-    if (response.data.error) {
-      throw new Error(response.data.error.message);
+
+    if (response.data.error_code) {
+      throw new Error(response.data.error_message);
     }
-    
+
     return response.data;
   } catch (error: any) {
-    if (error.response?.data?.error) {
-      throw new Error(error.response.data.error.message);
-    }
-    throw new Error('Failed to send WhatsApp message. Please try again later.');
-  }
-};
-
-export const handleSMSQuery = (keyword: string, waterLevel: number, weather: any) => {
-  switch (keyword.toLowerCase()) {
-    case 'level':
-      return `Current water level: ${waterLevel}m`;
-    case 'weather':
-      return `Current weather:\nTemp: ${weather.temperature}°C\nCondition: ${weather.condition}\nRainfall: ${weather.rainfall}mm`;
-    case 'status':
-      return `🌊 Full Status Update:\nWater Level: ${waterLevel}m\nTemp: ${weather.temperature}°C\nCondition: ${weather.condition}\nRainfall: ${weather.rainfall}mm`;
-    case 'help':
-      return `Available commands:\n- LEVEL: Get current water level\n- WEATHER: Get weather info\n- STATUS: Get full status update\n- HELP: Show this message`;
-    default:
-      return `Unknown command. Text HELP for available commands.`;
+    console.error('Error details:', error.response?.data || error);
+    throw new Error(error.response?.data?.message || error.message || 'Failed to send WhatsApp message');
   }
 };

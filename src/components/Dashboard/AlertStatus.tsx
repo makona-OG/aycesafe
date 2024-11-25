@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 // Configure the WhatsApp number here (include country code)
-const CONFIGURED_PHONE_NUMBER = '1234567890'; // Replace with actual number
+const CONFIGURED_PHONE_NUMBER = '14155238886'; // Default Twilio test number
 
 interface Props {
   status: WaterLevelData['status'];
