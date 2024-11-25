@@ -4,7 +4,7 @@ import { sendSMSAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-// Configure the WhatsApp number here (include country code without +)
+// Configure the WhatsApp number here (include country code)
 const CONFIGURED_PHONE_NUMBER = '1234567890'; // Replace with actual number
 
 interface Props {
@@ -31,7 +31,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           
           if (message) {
             await sendSMSAlert(message, CONFIGURED_PHONE_NUMBER);
-            toast.success('Alert sent successfully!');
+            toast.success('WhatsApp alert sent successfully!');
             setLastStatus(status);
             onAlertSent?.({
               timestamp: new Date().toISOString(),
@@ -41,7 +41,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           }
         } catch (error: any) {
           console.error('Failed to send alert:', error);
-          toast.error(error.message || 'Failed to send alert. Please check the system configuration.');
+          toast.error(error.message || 'Failed to send WhatsApp alert');
         }
       }
     };

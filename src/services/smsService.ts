@@ -1,29 +1,42 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// WhatsApp Cloud API configuration
+const WHATSAPP_API_URL = 'https://graph.facebook.com/v17.0';
+const WHATSAPP_PHONE_NUMBER_ID = import.meta.env.VITE_WHATSAPP_PHONE_NUMBER_ID;
+const WHATSAPP_ACCESS_TOKEN = import.meta.env.VITE_WHATSAPP_ACCESS_TOKEN;
 
 export const sendSMSAlert = async (message: string, to: string) => {
   try {
-    // Format WhatsApp number if it doesn't include WhatsApp prefix
-    const formattedNumber = to.startsWith('whatsapp:') ? to : `whatsapp:+${to.replace(/^\+/, '')}`;
+    // Format the phone number (remove any non-numeric characters and add country code)
+    const formattedNumber = to.replace(/\D/g, '');
     
-    const response = await axios.post(`${API_URL}/send-message`, {
-      message,
-      to: formattedNumber
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+    const response = await axios.post(
+      `${WHATSAPP_API_URL}/${WHATSAPP_PHONE_NUMBER_ID}/messages`,
+      {
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to: formattedNumber,
+        type: "text",
+        text: { 
+          body: message
+        }
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${WHATSAPP_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        }
       }
-    });
+    );
+    
+    if (response.data.error) {
+      throw new Error(response.data.error.message);
+    }
     
     return response.data;
   } catch (error: any) {
-    if (error.code === 'ERR_NETWORK') {
-      throw new Error('Cannot connect to WhatsApp service. Please check your connection and ensure the backend server is running.');
-    }
     if (error.response?.data?.error) {
-      throw new Error(error.response.data.error);
+      throw new Error(error.response.data.error.message);
     }
     throw new Error('Failed to send WhatsApp message. Please try again later.');
   }
