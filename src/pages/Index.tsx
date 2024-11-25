@@ -5,15 +5,20 @@ import { HistoricalChart } from "@/components/Dashboard/HistoricalChart";
 import { WeatherDisplay } from "@/components/Dashboard/WeatherInfo";
 import { AlertStatus } from "@/components/Dashboard/AlertStatus";
 import { LocationMap } from "@/components/Dashboard/LocationMap";
+import { AlertLogs } from "@/components/Dashboard/AlertLogs";
 import { useState, useEffect } from "react";
 import { WaterLevelData, WeatherInfo } from "@/lib/types";
 import { fetchWeatherData } from "@/services/weatherService";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { sendSMSAlert } from "@/services/smsService";
 import { toast } from "sonner";
+
+interface AlertLog {
+  timestamp: string;
+  status: WaterLevelData['status'];
+  message: string;
+}
 
 const Index = () => {
   const [waterLevel, setWaterLevel] = useState<WaterLevelData>({
@@ -30,6 +35,7 @@ const Index = () => {
 
   const [phoneNumber, setPhoneNumber] = useState("");
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [alertLogs, setAlertLogs] = useState<AlertLog[]>([]);
 
   // Simulate water level changes for demonstration
   useEffect(() => {
@@ -64,37 +70,9 @@ const Index = () => {
     }
   }, []);
 
-  // Send SMS updates periodically when enabled
-  useEffect(() => {
-    if (!notificationsEnabled || !phoneNumber) return;
-
-    const sendUpdate = async () => {
-      const message = `
-🌊 Water Level Update:
-Level: ${waterLevel.level}m
-Status: ${waterLevel.status.toUpperCase()}
-Temperature: ${weather.temperature}°C
-Condition: ${weather.condition}
-Rainfall: ${weather.rainfall}mm
-      `.trim();
-
-      try {
-        await sendSMSAlert(message, phoneNumber);
-        toast.success("Status update sent to your phone");
-      } catch (error) {
-        toast.error("Failed to send status update");
-        setNotificationsEnabled(false);
-      }
-    };
-
-    // Send initial update
-    sendUpdate();
-
-    // Set up periodic updates every 30 minutes
-    const interval = setInterval(sendUpdate, 30 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [notificationsEnabled, phoneNumber, waterLevel, weather]);
+  const handleAlertSent = (log: AlertLog) => {
+    setAlertLogs(prevLogs => [log, ...prevLogs]);
+  };
 
   const mockHistoricalData = Array.from({ length: 24 }, (_, i) => ({
     timestamp: new Date(Date.now() - i * 3600000).toISOString(),
@@ -136,7 +114,11 @@ Rainfall: ${weather.rainfall}mm
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <AlertStatus status={waterLevel.status} phoneNumber={phoneNumber} />
+            <AlertStatus 
+              status={waterLevel.status} 
+              phoneNumber={notificationsEnabled ? phoneNumber : undefined}
+              onAlertSent={handleAlertSent}
+            />
           </div>
           <div>
             <WaterLevelGauge data={waterLevel} />
@@ -147,8 +129,11 @@ Rainfall: ${weather.rainfall}mm
           <div>
             <WeatherDisplay data={weather} />
           </div>
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-2">
             <LocationMap />
+          </div>
+          <div className="lg:col-span-1">
+            <AlertLogs logs={alertLogs} />
           </div>
         </div>
       </main>

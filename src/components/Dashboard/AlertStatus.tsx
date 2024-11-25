@@ -1,7 +1,7 @@
 import { WaterLevelData } from "@/lib/types";
 import { AlertCircleIcon } from "lucide-react";
 import { sendSMSAlert } from "@/services/smsService";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 interface Props {

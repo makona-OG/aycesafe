@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { fetchWeatherData } from '@/services/weatherService';
 import { useToast } from '@/components/ui/use-toast';
-import { WeatherInfo } from '@/lib/types';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -65,16 +64,16 @@ export const LocationMap = () => {
     <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
       <MapContainer 
         style={{ height: '100%', width: '100%' }}
-        center={[51.505, -0.09]} 
-        zoom={13} 
+        center={[location.lat, location.lng] as [number, number]}
+        zoom={13}
         scrollWheelZoom={false}
       >
-        <MapUpdater center={[location.lat, location.lng]} />
+        <MapUpdater center={[location.lat, location.lng] as [number, number]} />
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={[location.lat, location.lng]}>
+        <Marker position={[location.lat, location.lng] as [number, number]}>
           <Popup>
             <div className="p-2">
               <div className="font-semibold">Your Location</div>
