@@ -50,10 +50,22 @@ export const LocationMap = () => {
               ]
             });
 
+            // Create a custom marker element
+            const markerElement = document.createElement('div');
+            markerElement.className = 'custom-marker';
+            markerElement.innerHTML = `
+              <div class="bg-white p-2 rounded-lg shadow-lg border-2 border-primary">
+                <div class="font-semibold text-primary">Your Location</div>
+                <div class="text-sm text-gray-600">Lat: ${lat.toFixed(4)}</div>
+                <div class="text-sm text-gray-600">Lng: ${lng.toFixed(4)}</div>
+              </div>
+            `;
+
+            // Create and add the custom marker to the map
             new AdvancedMarkerElement({
               position: { lat, lng },
               map,
-              title: 'Your Location'
+              content: markerElement
             });
 
             try {
