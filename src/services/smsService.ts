@@ -1,12 +1,17 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const sendSMSAlert = async (message: string, to: string) => {
   try {
     const response = await axios.post(`${API_URL}/send-message`, {
       message,
       to
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
     });
     return response.data;
   } catch (error) {
