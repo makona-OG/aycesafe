@@ -54,14 +54,15 @@ export const LocationMap = () => {
 
   return (
     <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
-      <MapContainer
-        center={[location.lat, location.lng]}
-        zoom={13}
-        className="w-full h-full"
+      <MapContainer 
+        style={{ height: '100%', width: '100%' }}
+        center={[location.lat, location.lng]} 
+        zoom={13} 
+        scrollWheelZoom={false}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         <Marker position={[location.lat, location.lng]}>
           <Popup>
