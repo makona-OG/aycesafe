@@ -6,21 +6,22 @@ import { toast } from "sonner";
 
 interface Props {
   status: WaterLevelData['status'];
+  phoneNumber?: string;
 }
 
-export const AlertStatus = ({ status }: Props) => {
+export const AlertStatus = ({ status, phoneNumber }: Props) => {
   const lastAlertSent = useRef<string | null>(null);
 
   useEffect(() => {
     const sendAlert = async () => {
       // Only send if status changed and we haven't sent this type of alert yet
-      if (status !== lastAlertSent.current) {
+      if (status !== lastAlertSent.current && phoneNumber) {
         try {
           if (status === 'danger') {
-            await sendSMSAlert('🚨 *URGENT*: Critical water levels detected in your area. Please take immediate action.');
+            await sendSMSAlert('🚨 *URGENT*: Critical water levels detected in your area. Please take immediate action.', phoneNumber);
             lastAlertSent.current = 'danger';
           } else if (status === 'warning') {
-            await sendSMSAlert('⚠️ *WARNING*: Water levels are rising in your area. Stay alert.');
+            await sendSMSAlert('⚠️ *WARNING*: Water levels are rising in your area. Stay alert.', phoneNumber);
             lastAlertSent.current = 'warning';
           } else {
             // Reset the last alert when status returns to safe
@@ -34,7 +35,7 @@ export const AlertStatus = ({ status }: Props) => {
     };
 
     sendAlert();
-  }, [status]);
+  }, [status, phoneNumber]);
 
   const getStatusConfig = (status: WaterLevelData['status']) => {
     switch (status) {

@@ -79,7 +79,7 @@ Rainfall: ${weather.rainfall}mm
       `.trim();
 
       try {
-        await sendSMSAlert(message);
+        await sendSMSAlert(message, phoneNumber);
         toast.success("Status update sent to your phone");
       } catch (error) {
         toast.error("Failed to send status update");
@@ -136,7 +136,7 @@ Rainfall: ${weather.rainfall}mm
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <AlertStatus status={waterLevel.status} />
+            <AlertStatus status={waterLevel.status} phoneNumber={phoneNumber} />
           </div>
           <div>
             <WaterLevelGauge data={waterLevel} />
