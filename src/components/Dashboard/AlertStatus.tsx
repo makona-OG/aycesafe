@@ -4,8 +4,8 @@ import { sendSMSAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-// Configure the WhatsApp number here (include country code)
-const CONFIGURED_PHONE_NUMBER = '14155238886'; // Default Twilio test number
+// Replace this with your WhatsApp number (the number you used to join Twilio's sandbox)
+const YOUR_WHATSAPP_NUMBER = ''; // TODO: Add your WhatsApp number here
 
 interface Props {
   status: WaterLevelData['status'];
@@ -17,6 +17,11 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
   const alertTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    if (!YOUR_WHATSAPP_NUMBER) {
+      toast.error('Please configure your WhatsApp number in AlertStatus.tsx');
+      return;
+    }
+
     const sendAlert = async () => {
       if (status !== lastStatus) {
         try {
@@ -30,7 +35,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           }
           
           if (message) {
-            await sendSMSAlert(message, CONFIGURED_PHONE_NUMBER);
+            await sendSMSAlert(message, YOUR_WHATSAPP_NUMBER);
             toast.success('WhatsApp alert sent successfully!');
             setLastStatus(status);
             onAlertSent?.({
@@ -97,6 +102,9 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
         <AlertCircleIcon className={config.animate ? 'animate-pulse' : ''} />
       </div>
       <p className="mt-2 text-lg font-bold">{config.message}</p>
+      {!YOUR_WHATSAPP_NUMBER && (
+        <p className="mt-2 text-sm opacity-75">⚠️ WhatsApp alerts disabled. Configure your number to enable them.</p>
+      )}
     </div>
   );
 };
