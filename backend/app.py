@@ -26,32 +26,28 @@ def send_message():
         if not message or not to_number:
             return jsonify({'error': 'Message and phone number are required'}), 400
 
-        # Ensure the phone number starts with + and country code
-        if not to_number.startswith('+'):
-            return jsonify({'error': 'Phone number must include country code (e.g., +1)'}), 400
-            
-        # Format WhatsApp numbers
-        whatsapp_to = f"whatsapp:{to_number}"
-        whatsapp_from = f"whatsapp:{twilio_number}"
+        # Ensure the number is properly formatted for WhatsApp
+        if not to_number.startswith('whatsapp:'):
+            return jsonify({'error': 'Invalid WhatsApp number format'}), 400
 
-        # Send message via Twilio
+        # Send message via Twilio WhatsApp
         message = client.messages.create(
-            from_=whatsapp_from,
+            from_=f'whatsapp:{twilio_number}',
             body=message,
-            to=whatsapp_to
+            to=to_number
         )
 
         return jsonify({
             'success': True,
             'message_sid': message.sid,
-            'status': 'Message sent successfully'
+            'status': 'WhatsApp message sent successfully'
         })
 
     except Exception as e:
         return jsonify({
             'error': str(e),
-            'message': 'Failed to send message. Make sure you have joined the Twilio WhatsApp sandbox.'
+            'message': 'Failed to send WhatsApp message. Make sure you have joined the Twilio WhatsApp sandbox.'
         }), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')

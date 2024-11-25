@@ -1,29 +1,31 @@
 import axios from 'axios';
 
-// Use environment variable or fallback to localhost
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const sendSMSAlert = async (message: string, to: string) => {
   try {
+    // Format WhatsApp number if it doesn't include WhatsApp prefix
+    const formattedNumber = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
+    
     const response = await axios.post(`${API_URL}/send-message`, {
       message,
-      to
+      to: formattedNumber
     }, {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      },
-      timeout: 5000 // 5 second timeout
+      }
     });
+    
     return response.data;
   } catch (error: any) {
     if (error.code === 'ERR_NETWORK') {
-      throw new Error('Cannot connect to SMS service. Please ensure the backend server is running.');
+      throw new Error('Cannot connect to WhatsApp service. Please check your connection and ensure the backend server is running.');
     }
     if (error.response?.data?.error) {
       throw new Error(error.response.data.error);
     }
-    throw error;
+    throw new Error('Failed to send WhatsApp message. Please try again later.');
   }
 };
 

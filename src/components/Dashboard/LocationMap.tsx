@@ -71,15 +71,15 @@ export const LocationMap = () => {
   return (
     <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
       <MapContainer 
-        style={{ height: '100%', width: '100%' }}
         center={[location.lat, location.lng]} 
-        zoom={13}
+        zoom={13} 
+        style={{ height: '100%', width: '100%' }}
         scrollWheelZoom={false}
       >
         <MapUpdater center={[location.lat, location.lng]} />
         <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attributionControl={true}
         />
         <Marker position={[location.lat, location.lng]}>
           <Popup>
