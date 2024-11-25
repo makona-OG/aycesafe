@@ -17,9 +17,10 @@ export const LocationMap = () => {
   useEffect(() => {
     const initMap = async () => {
       const loader = new Loader({
-        apiKey: 'AIzaSyDHvx4GtqfVFiKz-zrZxY6GQJr_wYl4nqI',
+        apiKey: 'AIzaSyBNLrJhOMz6idD05pzfn5lhA-TAw-mAZCU',
         version: 'weekly',
-        libraries: ['maps', 'marker']
+        libraries: ['maps', 'marker'],
+        mapIds: ['8f348cef7b6e6671'] // Add a valid Map ID
       });
 
       const { Map } = await loader.importLibrary('maps') as google.maps.MapsLibrary;
@@ -34,6 +35,7 @@ export const LocationMap = () => {
             const map = new Map(mapRef.current!, {
               center: { lat, lng },
               zoom: 15,
+              mapId: '8f348cef7b6e6671', // Use the same Map ID here
               styles: [
                 {
                   elementType: "geometry",
