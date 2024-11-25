@@ -5,10 +5,10 @@ const TWILIO_ACCOUNT_SID = 'AC1af93a201df4c52a7dd8219005d82f3a';
 const TWILIO_AUTH_TOKEN = '7ead3800a27806c1eb51675e15bba597';
 const TWILIO_PHONE_NUMBER = '+14155238886';
 
-export const sendSMSAlert = async (message: string) => {
+export const sendSMSAlert = async (message: string, to: string) => {
   try {
     const formData = new URLSearchParams();
-    formData.append('To', '+254712961615');
+    formData.append('To', to);
     formData.append('From', TWILIO_PHONE_NUMBER);
     formData.append('Body', message);
 
@@ -29,5 +29,20 @@ export const sendSMSAlert = async (message: string) => {
   } catch (error: any) {
     console.error('Error sending SMS:', error.response?.data || error);
     throw error;
+  }
+};
+
+export const handleSMSQuery = (keyword: string, waterLevel: number, weather: any) => {
+  switch (keyword.toLowerCase()) {
+    case 'level':
+      return `Current water level: ${waterLevel}m`;
+    case 'weather':
+      return `Current weather:\nTemp: ${weather.temperature}°C\nCondition: ${weather.condition}\nRainfall: ${weather.rainfall}mm`;
+    case 'status':
+      return `🌊 Full Status Update:\nWater Level: ${waterLevel}m\nTemp: ${weather.temperature}°C\nCondition: ${weather.condition}\nRainfall: ${weather.rainfall}mm`;
+    case 'help':
+      return `Available commands:\n- LEVEL: Get current water level\n- WEATHER: Get weather info\n- STATUS: Get full status update\n- HELP: Show this message`;
+    default:
+      return `Unknown command. Text HELP for available commands.`;
   }
 };
