@@ -31,6 +31,7 @@ export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
             return;
           }
           
+          toast.success('WhatsApp alert sent successfully');
           onAlertSent?.({
             timestamp: new Date().toISOString(),
             status,
@@ -38,7 +39,7 @@ export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
           });
         } catch (error) {
           console.error('Failed to send alert:', error);
-          toast.error('Failed to send WhatsApp alert');
+          toast.error('Failed to send WhatsApp alert. Make sure your phone number includes the country code (e.g., +1 for US numbers)');
         }
       }
     };
@@ -84,6 +85,11 @@ export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
         <AlertCircleIcon className={config.animate ? 'animate-pulse-slow' : ''} />
       </div>
       <p className="mt-2 text-lg">{config.message}</p>
+      {phoneNumber && (
+        <p className="mt-2 text-sm opacity-75">
+          WhatsApp alerts will be sent to: {phoneNumber}
+        </p>
+      )}
     </div>
   );
 };
