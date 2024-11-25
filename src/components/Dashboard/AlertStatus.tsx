@@ -16,6 +16,11 @@ export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
   useEffect(() => {
     const sendAlert = async () => {
       if (status !== lastAlertSent.current && phoneNumber) {
+        if (!phoneNumber.startsWith('+')) {
+          toast.error('Phone number must include country code (e.g., +1 for US numbers)');
+          return;
+        }
+
         try {
           let message = '';
           if (status === 'danger') {
@@ -31,7 +36,7 @@ export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
             return;
           }
           
-          toast.success('WhatsApp alert sent successfully');
+          toast.success('WhatsApp alert sent successfully! If this is your first message, please join the Twilio sandbox by replying "join" to the message.');
           onAlertSent?.({
             timestamp: new Date().toISOString(),
             status,
@@ -39,7 +44,7 @@ export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
           });
         } catch (error) {
           console.error('Failed to send alert:', error);
-          toast.error('Failed to send WhatsApp alert. Make sure your phone number includes the country code (e.g., +1 for US numbers)');
+          toast.error('Failed to send WhatsApp alert. Make sure you have joined the Twilio sandbox by sending "join" to the Twilio number.');
         }
       }
     };
@@ -86,9 +91,14 @@ export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
       </div>
       <p className="mt-2 text-lg">{config.message}</p>
       {phoneNumber && (
-        <p className="mt-2 text-sm opacity-75">
-          WhatsApp alerts will be sent to: {phoneNumber}
-        </p>
+        <div className="mt-2 space-y-2">
+          <p className="text-sm opacity-75">
+            WhatsApp alerts will be sent to: {phoneNumber}
+          </p>
+          <p className="text-xs opacity-75">
+            First time? Send "join" to {process.env.TWILIO_WHATSAPP_NUMBER || '+14155238886'} to receive alerts
+          </p>
+        </div>
       )}
     </div>
   );
