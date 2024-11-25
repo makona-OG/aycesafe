@@ -4,7 +4,7 @@ import { sendSMSAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-// Using the provided phone number
+// Using the provided phone number with proper WhatsApp formatting
 const RECIPIENT_NUMBER = '254712961615';
 
 interface Props {
@@ -31,7 +31,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           
           if (message) {
             await sendSMSAlert(message, RECIPIENT_NUMBER);
-            toast.success('Alert sent successfully!');
+            toast.success('WhatsApp alert sent successfully!');
             setLastStatus(status);
             onAlertSent?.({
               timestamp: new Date().toISOString(),
@@ -41,7 +41,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           }
         } catch (error: any) {
           console.error('Failed to send alert:', error);
-          toast.error('Failed to send alert. Please check your Twilio configuration.');
+          toast.error('Failed to send WhatsApp alert. Please make sure you have joined the Twilio sandbox by sending "join plenty-drawn" to +1 415 523 8886');
         }
       }
     };
@@ -98,7 +98,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
       </div>
       <p className="mt-2 text-lg font-bold">{config.message}</p>
       <p className="mt-2 text-sm opacity-75">
-        SMS alerts are enabled and will be sent to your configured number
+        WhatsApp alerts are enabled. Join Twilio sandbox by sending "join plenty-drawn" to +1 415 523 8886
       </p>
     </div>
   );
