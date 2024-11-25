@@ -9,10 +9,6 @@ import { AlertLogs } from "@/components/Dashboard/AlertLogs";
 import { useState, useEffect } from "react";
 import { WaterLevelData, WeatherInfo } from "@/lib/types";
 import { fetchWeatherData } from "@/services/weatherService";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 
 interface AlertLog {
   timestamp: string;
@@ -33,8 +29,6 @@ const Index = () => {
     rainfall: 0
   });
 
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [alertLogs, setAlertLogs] = useState<AlertLog[]>([]);
 
   // Simulate water level changes for demonstration
@@ -83,40 +77,10 @@ const Index = () => {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Header />
       <main className="container mx-auto py-8 px-4 flex-grow">
-        <div className="mb-6 p-4 bg-white rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold mb-4">SMS Notifications</h2>
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-4">
-              <Input
-                type="tel"
-                placeholder="Enter your phone number"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                className="max-w-xs"
-              />
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="notifications"
-                  checked={notificationsEnabled}
-                  onCheckedChange={setNotificationsEnabled}
-                  disabled={!phoneNumber}
-                />
-                <Label htmlFor="notifications">Enable SMS updates</Label>
-              </div>
-            </div>
-            {!phoneNumber && (
-              <p className="text-sm text-muted-foreground">
-                Enter your phone number to receive SMS updates about water levels and weather conditions.
-              </p>
-            )}
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <AlertStatus 
-              status={waterLevel.status} 
-              phoneNumber={notificationsEnabled ? phoneNumber : undefined}
+              status={waterLevel.status}
               onAlertSent={handleAlertSent}
             />
           </div>

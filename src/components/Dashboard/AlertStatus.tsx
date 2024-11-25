@@ -4,42 +4,39 @@ import { sendSMSAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+// Configure the phone number here
+const CONFIGURED_PHONE_NUMBER = '+1234567890'; // Replace with your actual phone number
+
 interface Props {
   status: WaterLevelData['status'];
-  phoneNumber?: string;
   onAlertSent?: (log: { timestamp: string; status: WaterLevelData['status']; message: string }) => void;
 }
 
-export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
+export const AlertStatus = ({ status, onAlertSent }: Props) => {
   const [lastStatus, setLastStatus] = useState<string | null>(null);
   const alertTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const sendAlert = async () => {
-      if (status !== lastStatus && phoneNumber) {
-        if (!phoneNumber.startsWith('+')) {
-          toast.error('Phone number must include country code (e.g., +1 for US numbers)');
-          return;
-        }
-
+      if (status !== lastStatus) {
         try {
           let message = '';
           if (status === 'danger' && status !== lastStatus) {
             message = '🚨 *URGENT*: Critical water levels detected! Current level exceeds safety threshold. Please take immediate action.';
-            await sendSMSAlert(message, phoneNumber);
+            await sendSMSAlert(message, CONFIGURED_PHONE_NUMBER);
             setLastStatus('danger');
           } else if (status === 'warning' && status !== lastStatus) {
             message = '⚠️ *WARNING*: Water levels are rising significantly. Current conditions require attention.';
-            await sendSMSAlert(message, phoneNumber);
+            await sendSMSAlert(message, CONFIGURED_PHONE_NUMBER);
             setLastStatus('warning');
           } else if (status === 'safe' && lastStatus !== 'safe') {
             message = '✅ *UPDATE*: Water levels have returned to safe levels.';
-            await sendSMSAlert(message, phoneNumber);
+            await sendSMSAlert(message, CONFIGURED_PHONE_NUMBER);
             setLastStatus('safe');
           }
           
           if (message) {
-            toast.success('Alert sent successfully! If this is your first message, please join the Twilio sandbox.');
+            toast.success('Alert sent successfully!');
             onAlertSent?.({
               timestamp: new Date().toISOString(),
               status,
@@ -48,17 +45,15 @@ export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
           }
         } catch (error) {
           console.error('Failed to send alert:', error);
-          toast.error('Failed to send alert. Make sure you have joined the Twilio sandbox.');
+          toast.error('Failed to send alert. Please check the system configuration.');
         }
       }
     };
 
-    // Clear any existing timeout
     if (alertTimeout.current) {
       clearTimeout(alertTimeout.current);
     }
 
-    // Set a small delay to prevent rapid-fire alerts
     alertTimeout.current = setTimeout(sendAlert, 1000);
 
     return () => {
@@ -66,7 +61,7 @@ export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
         clearTimeout(alertTimeout.current);
       }
     };
-  }, [status, phoneNumber, onAlertSent, lastStatus]);
+  }, [status, onAlertSent, lastStatus]);
 
   const getStatusConfig = (status: WaterLevelData['status']) => {
     switch (status) {
@@ -106,16 +101,6 @@ export const AlertStatus = ({ status, phoneNumber, onAlertSent }: Props) => {
         <AlertCircleIcon className={config.animate ? 'animate-pulse' : ''} />
       </div>
       <p className="mt-2 text-lg font-bold">{config.message}</p>
-      {phoneNumber && (
-        <div className="mt-2 space-y-2">
-          <p className="text-sm opacity-90">
-            WhatsApp alerts will be sent to: {phoneNumber}
-          </p>
-          <p className="text-xs opacity-75">
-            First time? Send "join" to +14155238886 to receive alerts
-          </p>
-        </div>
-      )}
     </div>
   );
 };

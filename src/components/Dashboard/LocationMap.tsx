@@ -5,6 +5,7 @@ import { useToast } from '@/components/ui/use-toast';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
+// Fix Leaflet default icon issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -71,16 +72,16 @@ export const LocationMap = () => {
     <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
       <MapContainer 
         style={{ height: '100%', width: '100%' }}
-        center={[location.lat, location.lng] as [number, number]}
+        center={[location.lat, location.lng]}
         zoom={13}
         scrollWheelZoom={false}
       >
-        <MapUpdater center={[location.lat, location.lng] as [number, number]} />
+        <MapUpdater center={[location.lat, location.lng]} />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <Marker position={[location.lat, location.lng] as [number, number]}>
+        <Marker position={[location.lat, location.lng]}>
           <Popup>
             <div className="p-2">
               <div className="font-semibold">Your Location</div>
