@@ -5,7 +5,6 @@ import { useToast } from '@/components/ui/use-toast';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Fix for default marker icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -39,12 +38,21 @@ export const LocationMap = () => {
 
           try {
             const weatherData = await fetchWeatherData(lat, lng);
+            const rainfallMessage = weatherData.rainfall > 0 
+              ? `Current rainfall: ${weatherData.rainfall}mm`
+              : 'No rainfall detected';
+              
             toast({
               title: "Weather Updated",
-              description: `Current temperature: ${weatherData.temperature}°C, ${weatherData.condition}`,
+              description: `Temperature: ${weatherData.temperature}°C\n${rainfallMessage}`,
             });
           } catch (error) {
             console.error('Error fetching weather:', error);
+            toast({
+              title: "Error",
+              description: "Failed to fetch weather data",
+              variant: "destructive",
+            });
           }
         },
         (error) => {
@@ -59,22 +67,20 @@ export const LocationMap = () => {
     }
   }, [toast]);
 
-  const position: [number, number] = [location.lat, location.lng];
-
   return (
     <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
       <MapContainer 
-        center={position}
-        zoom={13} 
         style={{ height: '100%', width: '100%' }}
+        center={[location.lat, location.lng] as [number, number]}
+        zoom={13}
         scrollWheelZoom={false}
       >
-        <MapUpdater center={position} />
+        <MapUpdater center={[location.lat, location.lng] as [number, number]} />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <Marker position={position}>
+        <Marker position={[location.lat, location.lng] as [number, number]}>
           <Popup>
             <div className="p-2">
               <div className="font-semibold">Your Location</div>
