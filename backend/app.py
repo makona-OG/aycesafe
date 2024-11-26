@@ -26,13 +26,9 @@ def send_message():
         if not message or not to_number:
             return jsonify({'error': 'Message and phone number are required'}), 400
 
-        # Ensure the number is properly formatted for WhatsApp
-        if not to_number.startswith('whatsapp:'):
-            return jsonify({'error': 'Invalid WhatsApp number format'}), 400
-
         # Send message via Twilio WhatsApp
         message = client.messages.create(
-            from_=f'whatsapp:{twilio_number}',
+            from_=f'whatsapp:+{twilio_number}',
             body=message,
             to=to_number
         )
@@ -44,6 +40,7 @@ def send_message():
         })
 
     except Exception as e:
+        print(f"Error sending message: {str(e)}")
         return jsonify({
             'error': str(e),
             'message': 'Failed to send WhatsApp message'
