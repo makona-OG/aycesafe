@@ -88,7 +88,7 @@ export const LocationMap = () => {
       <h2 className="text-xl font-bold text-gray-900">Location Monitoring</h2>
       <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
         <MapContainer 
-          center={[-0.406667, 36.962936]} 
+          center={[-0.406667, 36.962936] as [number, number]} 
           zoom={17} 
           scrollWheelZoom={true} 
           style={{ height: '100%', width: '100%' }}
@@ -98,28 +98,27 @@ export const LocationMap = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-        <Marker position={[location.lat, location.lng]}>
-          <Popup>
-            <div className="p-2">
-              <div className="font-semibold">Your Location</div>
-              <div className="text-sm">Lat: {location.lat.toFixed(4)}</div>
-              <div className="text-sm">Lng: {location.lng.toFixed(4)}</div>
-            </div>
-          </Popup>
-        </Marker>
-
-        {/* Fixed point markers */}
-        {FIXED_POINTS.map((point, index) => (
-          <Marker key={index} position={point.position}>
+          <Marker position={[location.lat, location.lng] as [number, number]}>
             <Popup>
               <div className="p-2">
-                <div className="font-semibold">{point.name}</div>
-                <div className="text-sm">Lat: {point.position[0]}</div>
-                <div className="text-sm">Lng: {point.position[1]}</div>
+                <div className="font-semibold">Your Location</div>
+                <div className="text-sm">Lat: {location.lat.toFixed(4)}</div>
+                <div className="text-sm">Lng: {location.lng.toFixed(4)}</div>
               </div>
             </Popup>
           </Marker>
-        ))}
+
+          {FIXED_POINTS.map((point, index) => (
+            <Marker key={index} position={point.position}>
+              <Popup>
+                <div className="p-2">
+                  <div className="font-semibold">{point.name}</div>
+                  <div className="text-sm">Lat: {point.position[0]}</div>
+                  <div className="text-sm">Lng: {point.position[1]}</div>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
         </MapContainer>
       </div>
     </div>
