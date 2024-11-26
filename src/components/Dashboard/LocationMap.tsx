@@ -75,12 +75,12 @@ export const LocationMap = () => {
   return (
     <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
       <MapContainer 
-        center={[location.lat, location.lng]}
+        center={[location.lat, location.lng] as [number, number]}
         zoom={13} 
         scrollWheelZoom={false}
         style={{ height: '100%', width: '100%' }}
       >
-        <MapUpdater center={[location.lat, location.lng]} />
+        <MapUpdater center={[location.lat, location.lng] as [number, number]} />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
