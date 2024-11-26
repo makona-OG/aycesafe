@@ -4,11 +4,14 @@ const BACKEND_URL = 'http://localhost:5000';
 
 export const sendSMSAlert = async (message: string, to: string) => {
   try {
+    // Remove any "whatsapp:" prefix if it exists
+    const cleanNumber = to.replace('whatsapp:', '').replace('+', '');
+    
     const response = await axios.post(
       `${BACKEND_URL}/api/send-message`,
       {
         message,
-        to: `whatsapp:+${to}`
+        to: cleanNumber
       }
     );
 
