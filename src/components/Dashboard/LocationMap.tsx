@@ -22,6 +22,17 @@ interface MapUpdaterProps {
   center: [number, number];
 }
 
+const FIXED_POINTS = [
+  {
+    position: [-0.406667, 36.962936] as [number, number],
+    name: "Point 1"
+  },
+  {
+    position: [-0.406600, 36.962637] as [number, number],
+    name: "Point 2"
+  }
+];
+
 function MapUpdater({ center }: MapUpdaterProps) {
   const map = useMap();
   useEffect(() => {
@@ -75,9 +86,9 @@ export const LocationMap = () => {
   return (
     <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
       <MapContainer 
-        center={[location.lat, location.lng]}
-        zoom={13} 
-        scrollWheelZoom={false}
+        center={[-0.406667, 36.962936]}
+        zoom={17} 
+        scrollWheelZoom={true}
         style={{ height: '100%', width: '100%' }}
       >
         <MapUpdater center={[location.lat, location.lng]} />
@@ -85,6 +96,7 @@ export const LocationMap = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        {/* Current location marker */}
         <Marker position={[location.lat, location.lng]}>
           <Popup>
             <div className="p-2">
@@ -94,6 +106,19 @@ export const LocationMap = () => {
             </div>
           </Popup>
         </Marker>
+
+        {/* Fixed point markers */}
+        {FIXED_POINTS.map((point, index) => (
+          <Marker key={index} position={point.position}>
+            <Popup>
+              <div className="p-2">
+                <div className="font-semibold">{point.name}</div>
+                <div className="text-sm">Lat: {point.position[0]}</div>
+                <div className="text-sm">Lng: {point.position[1]}</div>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
     </div>
   );
