@@ -18,7 +18,7 @@ export const WaterLevelGauge = ({ data }: Props) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg animate-fade-in">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Current Water Level</h2>
+        <h2 className="text-xl font-bold text-gray-900">Current Water Level</h2>
         <DropletIcon className={`h-6 w-6 ${data.status === 'danger' ? 'animate-pulse-slow text-alert-danger' : 'text-primary'}`} />
       </div>
       <div className="flex flex-col items-center">

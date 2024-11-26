@@ -42,7 +42,7 @@ function MapUpdater({ center }: MapUpdaterProps) {
 }
 
 export const LocationMap = () => {
-  const [location, setLocation] = useState<LocationData>({ lat: -1.2921, lng: 36.8219 }); // Default to Nairobi
+  const [location, setLocation] = useState<LocationData>({ lat: -1.2921, lng: 36.8219 });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -84,19 +84,20 @@ export const LocationMap = () => {
   }, [toast]);
 
   return (
-    <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
-      <MapContainer 
-        center={[-0.406667, 36.962936]}
-        zoom={17} 
-        scrollWheelZoom={true}
-        style={{ height: '100%', width: '100%' }}
-      >
-        <MapUpdater center={[location.lat, location.lng]} />
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        {/* Current location marker */}
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold text-gray-900">Location Monitoring</h2>
+      <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
+        <MapContainer 
+          center={[-0.406667, 36.962936]} 
+          zoom={17} 
+          scrollWheelZoom={true} 
+          style={{ height: '100%', width: '100%' }}
+        >
+          <MapUpdater center={[location.lat, location.lng]} />
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
         <Marker position={[location.lat, location.lng]}>
           <Popup>
             <div className="p-2">
@@ -119,7 +120,8 @@ export const LocationMap = () => {
             </Popup>
           </Marker>
         ))}
-      </MapContainer>
+        </MapContainer>
+      </div>
     </div>
   );
 };
