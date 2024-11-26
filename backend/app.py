@@ -46,7 +46,7 @@ def send_message():
     except Exception as e:
         return jsonify({
             'error': str(e),
-            'message': 'Failed to send WhatsApp message. Make sure you have joined the Twilio WhatsApp sandbox.'
+            'message': 'Failed to send WhatsApp message'
         }), 500
 
 if __name__ == '__main__':
