@@ -4,6 +4,7 @@ import { fetchWeatherData } from '@/services/weatherService';
 import { useToast } from '@/components/ui/use-toast';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import type { LatLngTuple } from 'leaflet';
 
 // Fix Leaflet default icon issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -19,16 +20,16 @@ interface LocationData {
 }
 
 interface MapUpdaterProps {
-  center: [number, number];
+  center: LatLngTuple;
 }
 
 const FIXED_POINTS = [
   {
-    position: [-0.406667, 36.962936] as [number, number],
+    position: [-0.406667, 36.962936] as LatLngTuple,
     name: "Point 1"
   },
   {
-    position: [-0.406600, 36.962637] as [number, number],
+    position: [-0.406600, 36.962637] as LatLngTuple,
     name: "Point 2"
   }
 ];
@@ -83,12 +84,14 @@ export const LocationMap = () => {
     }
   }, [toast]);
 
+  const defaultCenter: LatLngTuple = [-0.406667, 36.962936];
+
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold text-gray-900">Location Monitoring</h2>
       <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
         <MapContainer 
-          center={[-0.406667, 36.962936] as [number, number]} 
+          center={defaultCenter}
           zoom={17} 
           scrollWheelZoom={true} 
           style={{ height: '100%', width: '100%' }}
@@ -98,7 +101,7 @@ export const LocationMap = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <Marker position={[location.lat, location.lng] as [number, number]}>
+          <Marker position={[location.lat, location.lng] as LatLngTuple}>
             <Popup>
               <div className="p-2">
                 <div className="font-semibold">Your Location</div>
