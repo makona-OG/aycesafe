@@ -15,20 +15,27 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
   const [lastStatus, setLastStatus] = useState<string | null>(null);
   const alertTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  const saveAlert = (newLog: { timestamp: string; status: WaterLevelData['status']; message: string }) => {
+    const existingLogs = JSON.parse(localStorage.getItem('alertLogs') || '[]');
+    const updatedLogs = [newLog, ...existingLogs];
+    localStorage.setItem('alertLogs', JSON.stringify(updatedLogs));
+    onAlertSent?.(newLog);
+  };
+
   useEffect(() => {
     const sendAlert = async () => {
       if (status !== lastStatus) {
-        try {
-          let message = '';
-          if (status === 'danger' && status !== lastStatus) {
-            message = '🚨 *URGENT*: Critical water levels detected! Current level exceeds safety threshold. Please take immediate action.';
-          } else if (status === 'warning' && status !== lastStatus) {
-            message = '⚠️ *WARNING*: Water levels are rising significantly. Current conditions require attention.';
-          } else if (status === 'safe' && lastStatus !== 'safe') {
-            message = '✅ *UPDATE*: Water levels have returned to safe levels.';
-          }
-          
-          if (message) {
+        let message = '';
+        if (status === 'danger' && status !== lastStatus) {
+          message = '🚨 *URGENT*: Critical water levels detected! Current level exceeds safety threshold. Please take immediate action.';
+        } else if (status === 'warning' && status !== lastStatus) {
+          message = '⚠️ *WARNING*: Water levels are rising significantly. Current conditions require attention.';
+        } else if (status === 'safe' && lastStatus !== 'safe') {
+          message = '✅ *UPDATE*: Water levels have returned to safe levels.';
+        }
+        
+        if (message) {
+          try {
             await sendSMSAlert(message, RECIPIENT_NUMBER);
             toast.success('WhatsApp alert sent successfully!');
             
@@ -38,20 +45,21 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
               message
             };
             
-            // Store in localStorage
-            const existingLogs = JSON.parse(localStorage.getItem('alertLogs') || '[]');
-            const updatedLogs = [newLog, ...existingLogs];
-            localStorage.setItem('alertLogs', JSON.stringify(updatedLogs));
-            
+            saveAlert(newLog);
             setLastStatus(status);
-            onAlertSent?.(newLog);
+          } catch (error: any) {
+            console.error('Failed to send alert:', error);
+            toast.error('Failed to send WhatsApp alert. Please make sure you have joined the Twilio sandbox.');
             
-            // Dispatch storage event for other components
-            window.dispatchEvent(new Event('storage'));
+            // Still save the alert even if SMS fails
+            const newLog = {
+              timestamp: new Date().toISOString(),
+              status,
+              message
+            };
+            saveAlert(newLog);
+            setLastStatus(status);
           }
-        } catch (error: any) {
-          console.error('Failed to send alert:', error);
-          toast.error('Failed to send WhatsApp alert. Please make sure you have joined the Twilio sandbox by sending "join plenty-drawn" to +1 415 523 8886');
         }
       }
     };
