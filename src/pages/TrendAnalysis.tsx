@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, BarChart2 } from "lucide-react";
+import { Upload } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -11,12 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { DataChart } from "@/components/Analysis/DataChart";
+import { StatisticalSummary } from "@/components/Analysis/StatisticalSummary";
 
 interface FileData {
   file: File;
@@ -37,7 +33,6 @@ export const TrendAnalysis = () => {
     const columnCount = contents[0]?.length || 0;
     const rowCount = contents.length;
     
-    // Calculate averages for each numeric column
     const averages = Array(columnCount).fill(0);
     let validRows = Array(columnCount).fill(0);
     
@@ -73,7 +68,7 @@ export const TrendAnalysis = () => {
           const text = await file.text();
           const contents = text.split('\n')
             .map(row => row.split(','))
-            .filter(row => row.some(cell => cell.trim())); // Remove empty rows
+            .filter(row => row.some(cell => cell.trim()));
           
           const analysis = analyzeData(contents);
           
@@ -110,7 +105,7 @@ export const TrendAnalysis = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Upload Data</h2>
           <p className="text-muted-foreground">
-            Upload your CSV files containing water level data for trend analysis.
+            Upload your CSV files containing data for trend analysis.
           </p>
           
           <div className="flex items-center space-x-4">
@@ -147,32 +142,37 @@ export const TrendAnalysis = () => {
               <p><strong>Columns:</strong> {fileData.analysis.columnCount}</p>
             </div>
 
+            {/* Data Visualization */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Column Averages</h3>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Column</TableHead>
-                    <TableHead>Average</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {fileData.analysis.averages.map((avg, i) => (
-                    <TableRow key={i}>
-                      <TableCell>Column {i + 1}</TableCell>
-                      <TableCell>{avg}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <h3 className="text-lg font-semibold">Trend Analysis</h3>
+              <DataChart 
+                data={fileData.contents} 
+                columns={fileData.contents[0] || []}
+              />
+            </div>
+
+            {/* Statistical Summary */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Statistical Summary</h3>
+              <StatisticalSummary 
+                data={fileData.contents}
+                columns={fileData.contents[0] || []}
+              />
             </div>
 
             <div className="mt-4">
               <h3 className="text-lg font-semibold mb-4">Data Preview</h3>
               <div className="overflow-x-auto">
                 <Table>
+                  <TableHeader>
+                    <TableRow>
+                      {fileData.contents[0]?.map((header, i) => (
+                        <TableHead key={i}>{header}</TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
                   <TableBody>
-                    {fileData.contents.slice(0, 5).map((row, i) => (
+                    {fileData.contents.slice(1, 6).map((row, i) => (
                       <TableRow key={i}>
                         {row.map((cell, j) => (
                           <TableCell key={j}>{cell}</TableCell>
@@ -181,9 +181,9 @@ export const TrendAnalysis = () => {
                     ))}
                   </TableBody>
                 </Table>
-                {fileData.contents.length > 5 && (
+                {fileData.contents.length > 6 && (
                   <p className="text-sm text-muted-foreground mt-2">
-                    Showing first 5 rows of {fileData.contents.length} total rows
+                    Showing first 5 rows of {fileData.contents.length - 1} total rows
                   </p>
                 )}
               </div>
