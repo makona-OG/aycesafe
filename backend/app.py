@@ -26,11 +26,15 @@ def send_message():
         if not message or not to_number:
             return jsonify({'error': 'Message and phone number are required'}), 400
 
+        # Format the WhatsApp numbers correctly
+        from_whatsapp = f'whatsapp:+{twilio_number}'
+        to_whatsapp = f'whatsapp:+{to_number}'
+
         # Send message via Twilio WhatsApp
         message = client.messages.create(
-            from_=f'whatsapp:+{twilio_number}',
+            from_=from_whatsapp,
             body=message,
-            to=to_number
+            to=to_whatsapp
         )
 
         return jsonify({
