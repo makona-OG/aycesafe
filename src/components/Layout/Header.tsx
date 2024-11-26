@@ -27,7 +27,7 @@ export const Header = () => {
           <Link to="/" className="hover:text-secondary transition-colors">Dashboard</Link>
           <Link to="/trend-analysis" className="hover:text-secondary transition-colors">Trend Analysis</Link>
           <Link to="/about" className="hover:text-secondary transition-colors">About</Link>
-          <a href="#" className="hover:text-secondary transition-colors">Alerts</a>
+          <Link to="/alerts" className="hover:text-secondary transition-colors">Alerts</Link>
         </nav>
 
         {/* Mobile navigation */}
@@ -36,7 +36,7 @@ export const Header = () => {
             <Link to="/" className="hover:text-secondary transition-colors">Dashboard</Link>
             <Link to="/trend-analysis" className="hover:text-secondary transition-colors">Trend Analysis</Link>
             <Link to="/about" className="hover:text-secondary transition-colors">About</Link>
-            <a href="#" className="hover:text-secondary transition-colors">Alerts</a>
+            <Link to="/alerts" className="hover:text-secondary transition-colors">Alerts</Link>
           </nav>
         )}
       </div>

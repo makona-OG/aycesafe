@@ -4,7 +4,6 @@ import { sendSMSAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-// Using the provided phone number with proper WhatsApp formatting
 const RECIPIENT_NUMBER = '254712961615';
 
 interface Props {
@@ -32,12 +31,23 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           if (message) {
             await sendSMSAlert(message, RECIPIENT_NUMBER);
             toast.success('WhatsApp alert sent successfully!');
-            setLastStatus(status);
-            onAlertSent?.({
+            
+            const newLog = {
               timestamp: new Date().toISOString(),
               status,
               message
-            });
+            };
+            
+            // Store in localStorage
+            const existingLogs = JSON.parse(localStorage.getItem('alertLogs') || '[]');
+            const updatedLogs = [newLog, ...existingLogs];
+            localStorage.setItem('alertLogs', JSON.stringify(updatedLogs));
+            
+            setLastStatus(status);
+            onAlertSent?.(newLog);
+            
+            // Dispatch storage event for other components
+            window.dispatchEvent(new Event('storage'));
           }
         } catch (error: any) {
           console.error('Failed to send alert:', error);
