@@ -4,8 +4,8 @@ import { sendAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-// Update with your WhatsApp number
-const WHATSAPP_NUMBER = '+1234567890';
+// Update with your WhatsApp number - make sure to include country code
+const WHATSAPP_NUMBER = '254712961615';
 
 interface Props {
   status: WaterLevelData['status'];
@@ -16,11 +16,11 @@ const getAlertMessage = (status: WaterLevelData['status'], lastStatus: string | 
   const timestamp = new Date().toLocaleTimeString();
   
   if (status === 'danger' && status !== lastStatus) {
-    return `🚨 URGENT ALERT [${timestamp}]: Water levels have reached CRITICAL levels! Immediate action required.`;
+    return `URGENT ALERT [${timestamp}]: Water levels have reached CRITICAL levels! Immediate action required.`;
   } else if (status === 'warning' && status !== lastStatus) {
-    return `⚠️ WARNING ALERT [${timestamp}]: Water levels are rising and require attention.`;
+    return `WARNING ALERT [${timestamp}]: Water levels are rising and require attention.`;
   } else if (status === 'safe' && lastStatus !== 'safe') {
-    return `✅ STATUS UPDATE [${timestamp}]: Water levels have returned to safe levels.`;
+    return `STATUS UPDATE [${timestamp}]: Water levels have returned to safe levels.`;
   }
   return null;
 };
@@ -73,6 +73,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
       if (message && !isRetrying) {
         setIsRetrying(true);
         try {
+          console.log('Sending alert to:', WHATSAPP_NUMBER);
           const result = await sendAlert(message, WHATSAPP_NUMBER);
 
           if (result.success) {

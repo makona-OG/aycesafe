@@ -4,6 +4,11 @@ import http.client
 import json
 import os
 from dotenv import load_dotenv
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -17,8 +22,15 @@ def send_alert():
         message = data.get('message', '')
         phone = data.get('phone')
 
+        logger.info(f"Received alert request - Phone: {phone}, Message: {message}")
+
         if not message or not phone:
+            logger.error("Missing required fields")
             return jsonify({'error': 'Message and phone number are required'}), 400
+
+        # Format phone number if it doesn't start with country code
+        if not phone.startswith('+'):
+            phone = '+' + phone
 
         conn = http.client.HTTPSConnection(os.getenv('INFOBIP_BASE_URL'))
         
@@ -28,7 +40,13 @@ def send_alert():
                     "from": os.getenv('INFOBIP_SENDER'),
                     "to": phone,
                     "content": {
-                        "text": message
+                        "templateName": "test_whatsapp_template_en",
+                        "templateData": {
+                            "body": {
+                                "placeholders": [message]
+                            }
+                        },
+                        "language": "en"
                     }
                 }
             ]
@@ -40,19 +58,26 @@ def send_alert():
             'Accept': 'application/json'
         }
 
-        conn.request("POST", "/whatsapp/1/message/text", payload, headers)
+        logger.info("Sending request to Infobip")
+        conn.request("POST", "/whatsapp/1/message/template", payload, headers)
         response = conn.getresponse()
         result = response.read()
+        
+        logger.info(f"Infobip response status: {response.status}")
+        logger.info(f"Infobip response: {result.decode('utf-8')}")
 
         if response.status in [200, 201]:
             return jsonify({'success': True})
         else:
+            error_message = result.decode('utf-8')
+            logger.error(f"Infobip error: {error_message}")
             return jsonify({
                 'success': False,
-                'error': result.decode('utf-8')
+                'error': error_message
             })
 
     except Exception as e:
+        logger.error(f"Error sending alert: {str(e)}")
         return jsonify({
             'success': False,
             'error': str(e)
