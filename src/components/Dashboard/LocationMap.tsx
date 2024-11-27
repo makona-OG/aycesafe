@@ -95,6 +95,7 @@ export const LocationMap = () => {
           zoom={17} 
           scrollWheelZoom={true} 
           style={{ height: '100%', width: '100%' }}
+          attributionControl={true}
         >
           <MapUpdater center={[location.lat, location.lng]} />
           <TileLayer
