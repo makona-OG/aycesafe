@@ -91,7 +91,7 @@ export const LocationMap = () => {
       <h2 className="text-xl font-bold text-gray-900">Location Monitoring</h2>
       <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
         <MapContainer 
-          defaultCenter={defaultCenter}
+          center={defaultCenter}
           zoom={17} 
           scrollWheelZoom={true} 
           style={{ height: '100%', width: '100%' }}
