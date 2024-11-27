@@ -1,11 +1,14 @@
 import { WaterLevelData } from "@/lib/types";
 import { AlertCircle } from "lucide-react";
-import { sendSMSAlert } from "@/services/smsService";
+import { sendAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-// You can change this to your email address
-const RECIPIENT_EMAIL = 'pharelmakona5@gmail.com';
+// Update these with your contact details
+const ALERT_RECIPIENTS = {
+  email: 'pharelmakona5@gmail.com',
+  phone: '+1234567890' // Your phone number in E.164 format
+};
 
 interface Props {
   status: WaterLevelData['status'];
@@ -67,26 +70,41 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
   };
 
   useEffect(() => {
-    const sendAlert = async () => {
+    const sendAlertNotification = async () => {
       const message = getAlertMessage(status, lastStatus);
       
       if (message && !isRetrying) {
         setIsRetrying(true);
         try {
-          await sendSMSAlert(message, RECIPIENT_EMAIL);
-          toast.success('Alert email sent successfully!');
-          
-          const newLog = {
-            timestamp: new Date().toISOString(),
-            status,
-            message
-          };
-          
-          saveAlert(newLog);
-          setLastStatus(status);
+          // Send alerts through all available channels
+          const result = await sendAlert(
+            message,
+            ALERT_RECIPIENTS,
+            ['email', 'sms', 'whatsapp']
+          );
+
+          if (result.success) {
+            toast.success('Alerts sent successfully!');
+            
+            const newLog = {
+              timestamp: new Date().toISOString(),
+              status,
+              message
+            };
+            
+            saveAlert(newLog);
+            setLastStatus(status);
+          } else {
+            const errors = Object.entries(result.results)
+              .filter(([_, result]) => result && !result.success)
+              .map(([channel, result]) => `${channel}: ${result?.error}`)
+              .join(', ');
+            
+            toast.error(`Some alerts failed: ${errors}`);
+          }
         } catch (error: any) {
-          console.error('Failed to send alert:', error);
-          toast.error(`Failed to send alert: ${error.message}`);
+          console.error('Failed to send alerts:', error);
+          toast.error(`Failed to send alerts: ${error.message}`);
         } finally {
           setIsRetrying(false);
         }
@@ -97,7 +115,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
       clearTimeout(alertTimeout.current);
     }
 
-    alertTimeout.current = setTimeout(sendAlert, 1000);
+    alertTimeout.current = setTimeout(sendAlertNotification, 1000);
 
     return () => {
       if (alertTimeout.current) {
@@ -116,7 +134,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
       </div>
       <p className="mt-2 text-lg font-bold">{config.message}</p>
       <p className="mt-2 text-sm opacity-75">
-        Email alerts are enabled and will be sent to {RECIPIENT_EMAIL}
+        Alerts will be sent via Email, SMS, and WhatsApp
       </p>
     </div>
   );

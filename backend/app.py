@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
 import socket
+from twilio.rest import Client
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -32,6 +33,12 @@ SMTP_PORT = 587
 SENDER_EMAIL = os.getenv('GMAIL_ADDRESS')
 SENDER_PASSWORD = os.getenv('GMAIL_APP_PASSWORD')
 
+# Twilio configuration
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+TWILIO_WHATSAPP_NUMBER = os.getenv('TWILIO_WHATSAPP_NUMBER')
+
 def send_email(to_email, message):
     msg = MIMEMultipart()
     msg['From'] = SENDER_EMAIL
@@ -56,37 +63,68 @@ def send_email(to_email, message):
         logger.error(f"Unexpected Error: {str(e)}")
         return False, str(e)
 
-@app.route('/api/send-message', methods=['POST', 'OPTIONS'])
-def send_message():
+def send_sms(to_phone, message):
+    try:
+        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+        message = client.messages.create(
+            body=message,
+            from_=TWILIO_PHONE_NUMBER,
+            to=to_phone
+        )
+        return True, None
+    except Exception as e:
+        logger.error(f"SMS Error: {str(e)}")
+        return False, str(e)
+
+def send_whatsapp(to_phone, message):
+    try:
+        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+        message = client.messages.create(
+            body=message,
+            from_=f"whatsapp:{TWILIO_WHATSAPP_NUMBER}",
+            to=f"whatsapp:{to_phone}"
+        )
+        return True, None
+    except Exception as e:
+        logger.error(f"WhatsApp Error: {str(e)}")
+        return False, str(e)
+
+@app.route('/api/send-alert', methods=['POST', 'OPTIONS'])
+def send_alert():
     if request.method == 'OPTIONS':
         return jsonify({'status': 'ok'}), 200
         
     try:
-        logger.info("Received send-message request")
         data = request.get_json()
         message = data.get('message', '')
-        to_email = data.get('to')
+        channels = data.get('channels', [])
+        recipients = data.get('recipients', {})
         
-        logger.info(f"Sending email to: {to_email}")
-        
-        if not message or not to_email:
-            logger.error("Missing required fields")
-            return jsonify({'error': 'Message and email address are required'}), 400
+        if not message or not channels or not recipients:
+            return jsonify({'error': 'Message, channels, and recipients are required'}), 400
 
-        success, error = send_email(to_email, message)
-        
-        if success:
-            logger.info("Email sent successfully")
-            return jsonify({
-                'success': True,
-                'status': 'Email alert sent successfully'
-            })
-        else:
-            logger.error(f"Failed to send email: {error}")
-            return jsonify({
-                'error': f'Failed to send email: {error}',
-                'details': error
-            }), 500
+        results = {
+            'email': None,
+            'sms': None,
+            'whatsapp': None
+        }
+
+        if 'email' in channels and recipients.get('email'):
+            success, error = send_email(recipients['email'], message)
+            results['email'] = {'success': success, 'error': error}
+
+        if 'sms' in channels and recipients.get('phone'):
+            success, error = send_sms(recipients['phone'], message)
+            results['sms'] = {'success': success, 'error': error}
+
+        if 'whatsapp' in channels and recipients.get('phone'):
+            success, error = send_whatsapp(recipients['phone'], message)
+            results['whatsapp'] = {'success': success, 'error': error}
+
+        return jsonify({
+            'success': any(result and result.get('success') for result in results.values() if result),
+            'results': results
+        })
 
     except Exception as e:
         logger.error(f"Request handling error: {str(e)}")
