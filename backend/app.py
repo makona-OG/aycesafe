@@ -5,6 +5,11 @@ from dotenv import load_dotenv
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -23,17 +28,23 @@ SMTP_PORT = 587
 SENDER_EMAIL = os.getenv('GMAIL_ADDRESS')
 SENDER_PASSWORD = os.getenv('GMAIL_APP_PASSWORD')
 
+logger.info(f"Email configuration loaded. Using address: {SENDER_EMAIL}")
+
 @app.route('/api/send-message', methods=['POST', 'OPTIONS'])
 def send_message():
     if request.method == 'OPTIONS':
         return jsonify({'status': 'ok'}), 200
         
     try:
+        logger.info("Received send-message request")
         data = request.get_json()
         message = data.get('message', '')
         to_email = data.get('to')
         
+        logger.info(f"Sending email to: {to_email}")
+        
         if not message or not to_email:
+            logger.error("Missing required fields")
             return jsonify({'error': 'Message and email address are required'}), 400
 
         # Create the email message
@@ -45,26 +56,29 @@ def send_message():
         # Add body to email
         msg.attach(MIMEText(message, 'plain'))
         
+        logger.info("Attempting to connect to SMTP server")
         # Create SMTP session with longer timeout
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=60)
         server.set_debuglevel(1)  # Enable SMTP debug output
+        
+        logger.info("Starting TLS")
         server.starttls()
         
-        # Debug logging
-        print(f"Attempting to login with email: {SENDER_EMAIL}")
+        logger.info("Attempting login")
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
         
-        # Send email
+        logger.info("Sending email")
         server.send_message(msg)
         server.quit()
-
+        
+        logger.info("Email sent successfully")
         return jsonify({
             'success': True,
             'status': 'Email alert sent successfully'
         })
 
     except smtplib.SMTPAuthenticationError as e:
-        print(f"SMTP Authentication Error: {str(e)}")
+        logger.error(f"SMTP Authentication Error: {str(e)}")
         return jsonify({
             'error': 'Authentication failed. Please check email credentials.',
             'details': str(e)
@@ -72,7 +86,7 @@ def send_message():
         
     except Exception as e:
         error_str = str(e)
-        print(f"Error sending email: {error_str}")
+        logger.error(f"Error sending email: {error_str}")
         
         if "authentication failed" in error_str.lower():
             error_message = "Authentication failed. Please check email credentials."
@@ -85,4 +99,5 @@ def send_message():
         }), 500
 
 if __name__ == '__main__':
+    logger.info("Starting Flask server...")
     app.run(debug=True, host='0.0.0.0', port=5000)

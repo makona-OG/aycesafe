@@ -12,7 +12,8 @@ export const sendSMSAlert = async (message: string, to: string) => {
   
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      console.log(`Attempt ${attempt} to send email to ${to}`);
+      console.log(`[Frontend] Attempt ${attempt} to send email to ${to}`);
+      console.log(`[Frontend] Sending request to ${BACKEND_URL}/api/send-message`);
       
       const response = await axios({
         method: 'post',
@@ -27,15 +28,21 @@ export const sendSMSAlert = async (message: string, to: string) => {
         }
       });
 
+      console.log('[Frontend] Server response:', response.data);
+
       if (response.data.error) {
         throw new Error(response.data.error);
       }
 
-      console.log('Email sent successfully:', response.data);
+      console.log('[Frontend] Email sent successfully:', response.data);
       return response.data;
     } catch (error: any) {
       lastError = error;
-      console.error(`Attempt ${attempt} failed:`, error.message);
+      console.error(`[Frontend] Attempt ${attempt} failed:`, {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       
       if (error.response?.data?.error) {
         throw new Error(error.response.data.error);
@@ -43,7 +50,7 @@ export const sendSMSAlert = async (message: string, to: string) => {
       
       if (attempt < MAX_RETRIES) {
         const delay = RETRY_DELAY * attempt;
-        console.log(`Waiting ${delay}ms before retry...`);
+        console.log(`[Frontend] Waiting ${delay}ms before retry...`);
         await sleep(delay);
         continue;
       }
