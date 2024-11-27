@@ -17,8 +17,8 @@ export const LocationMap = () => {
     <div className="bg-white p-6 rounded-lg shadow-lg">
       <h2 className="text-xl font-semibold mb-4">Sensor Location</h2>
       <MapContainer 
-        style={{ height: '400px', width: '100%' }}
-        center={position}
+        className="h-[400px] w-full"
+        center={position as [number, number]}
         zoom={13}
         scrollWheelZoom={false}
       >
