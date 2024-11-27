@@ -11,27 +11,39 @@ const customIcon = L.icon({
 });
 
 const LocationMap = () => {
-  // Fixed coordinates for the sensor location
-  const sensorPosition: [number, number] = [51.505, -0.09];
+  // Fixed coordinates for the sensor locations
+  const sensorPosition1: [number, number] = [-0.406667, 36.962936];
+  const sensorPosition2: [number, number] = [-0.406600, 36.962637];
+
+  // Center the map between the two points
+  const centerPosition: [number, number] = [
+    (sensorPosition1[0] + sensorPosition2[0]) / 2,
+    (sensorPosition1[1] + sensorPosition2[1]) / 2
+  ];
 
   return (
     <div className="h-[400px] w-full rounded-lg overflow-hidden border border-border">
       <MapContainer 
         className="h-full w-full"
-        center={sensorPosition}
-        zoom={13}
-        scrollWheelZoom={false}
+        center={centerPosition}
+        zoom={18}
+        scrollWheelZoom={true}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <Marker 
-          position={sensorPosition}
-          icon={customIcon}
+          position={sensorPosition1}
         >
           <Popup>
-            Sensor Location
+            Sensor Location 1
+          </Popup>
+        </Marker>
+        <Marker 
+          position={sensorPosition2}
+        >
+          <Popup>
+            Sensor Location 2
           </Popup>
         </Marker>
       </MapContainer>
