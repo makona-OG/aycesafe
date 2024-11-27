@@ -3,7 +3,7 @@ import axios from 'axios';
 const BACKEND_URL = 'http://localhost:5000';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000; // 2 seconds
-const REQUEST_TIMEOUT = 60000; // Increased to 60 seconds for better reliability
+const REQUEST_TIMEOUT = 60000; // 60 seconds
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -52,7 +52,7 @@ export const sendSMSAlert = async (message: string, to: string) => {
 
   const errorMessage = lastError?.response?.data?.error || 
     lastError?.message || 
-    'Failed to connect to the server. Please check your internet connection and ensure the backend server is running at http://localhost:5000';
+    'Failed to send alert. Please check your internet connection and ensure the backend server is running.';
   
   throw new Error(errorMessage);
 };

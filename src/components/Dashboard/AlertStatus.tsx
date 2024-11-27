@@ -4,6 +4,7 @@ import { sendSMSAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+// You can change this to your email address
 const RECIPIENT_EMAIL = 'pharelmakona5@gmail.com';
 
 interface Props {
@@ -12,12 +13,14 @@ interface Props {
 }
 
 const getAlertMessage = (status: WaterLevelData['status'], lastStatus: string | null) => {
+  const timestamp = new Date().toLocaleTimeString();
+  
   if (status === 'danger' && status !== lastStatus) {
-    return '🚨 *URGENT*: Critical water levels detected! Current level exceeds safety threshold. Please take immediate action.';
+    return `🚨 URGENT ALERT [${timestamp}]: Water levels have reached CRITICAL levels! Immediate action required.`;
   } else if (status === 'warning' && status !== lastStatus) {
-    return '⚠️ *WARNING*: Water levels are rising significantly. Current conditions require attention.';
+    return `⚠️ WARNING ALERT [${timestamp}]: Water levels are rising and require attention.`;
   } else if (status === 'safe' && lastStatus !== 'safe') {
-    return '✅ *UPDATE*: Water levels have returned to safe levels.';
+    return `✅ STATUS UPDATE [${timestamp}]: Water levels have returned to safe levels.`;
   }
   return null;
 };
@@ -71,7 +74,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
         setIsRetrying(true);
         try {
           await sendSMSAlert(message, RECIPIENT_EMAIL);
-          toast.success('Email alert sent successfully!');
+          toast.success('Alert email sent successfully!');
           
           const newLog = {
             timestamp: new Date().toISOString(),
@@ -83,15 +86,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           setLastStatus(status);
         } catch (error: any) {
           console.error('Failed to send alert:', error);
-          toast.error(error.message);
-          
-          const newLog = {
-            timestamp: new Date().toISOString(),
-            status,
-            message: message + ' (Delivery failed)'
-          };
-          saveAlert(newLog);
-          setLastStatus(status);
+          toast.error(`Failed to send alert: ${error.message}`);
         } finally {
           setIsRetrying(false);
         }
