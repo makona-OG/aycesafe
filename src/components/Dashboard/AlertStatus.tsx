@@ -4,7 +4,7 @@ import { sendSMSAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-const RECIPIENT_NUMBER = '254712961615';
+const RECIPIENT_EMAIL = 'pharelmakona5@gmail.com';
 
 interface Props {
   status: WaterLevelData['status'];
@@ -70,8 +70,8 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
       if (message && !isRetrying) {
         setIsRetrying(true);
         try {
-          await sendSMSAlert(message, RECIPIENT_NUMBER);
-          toast.success('WhatsApp alert sent successfully!');
+          await sendSMSAlert(message, RECIPIENT_EMAIL);
+          toast.success('Email alert sent successfully!');
           
           const newLog = {
             timestamp: new Date().toISOString(),
@@ -85,7 +85,6 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
           console.error('Failed to send alert:', error);
           toast.error(error.message);
           
-          // Still save the alert even if SMS fails
           const newLog = {
             timestamp: new Date().toISOString(),
             status,
@@ -122,7 +121,7 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
       </div>
       <p className="mt-2 text-lg font-bold">{config.message}</p>
       <p className="mt-2 text-sm opacity-75">
-        WhatsApp alerts are enabled. Join Twilio sandbox by sending "join plenty-drawn" to +1 415 523 8886
+        Email alerts are enabled and will be sent to {RECIPIENT_EMAIL}
       </p>
     </div>
   );
