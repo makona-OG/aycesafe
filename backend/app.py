@@ -6,10 +6,14 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
+import socket
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+# Increase socket timeout
+socket.setdefaulttimeout(30)
 
 load_dotenv()
 
@@ -28,7 +32,29 @@ SMTP_PORT = 587
 SENDER_EMAIL = os.getenv('GMAIL_ADDRESS')
 SENDER_PASSWORD = os.getenv('GMAIL_APP_PASSWORD')
 
-logger.info(f"Email configuration loaded. Using address: {SENDER_EMAIL}")
+def send_email(to_email, message):
+    msg = MIMEMultipart()
+    msg['From'] = SENDER_EMAIL
+    msg['To'] = to_email
+    msg['Subject'] = "Water Level Alert"
+    msg.attach(MIMEText(message, 'plain'))
+    
+    try:
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=30) as server:
+            server.set_debuglevel(1)
+            server.starttls()
+            server.login(SENDER_EMAIL, SENDER_PASSWORD)
+            server.send_message(msg)
+            return True, None
+    except smtplib.SMTPAuthenticationError as e:
+        logger.error(f"SMTP Authentication Error: {str(e)}")
+        return False, "Authentication failed"
+    except (socket.timeout, socket.gaierror) as e:
+        logger.error(f"Network Error: {str(e)}")
+        return False, "Network connection error"
+    except Exception as e:
+        logger.error(f"Unexpected Error: {str(e)}")
+        return False, str(e)
 
 @app.route('/api/send-message', methods=['POST', 'OPTIONS'])
 def send_message():
@@ -47,55 +73,26 @@ def send_message():
             logger.error("Missing required fields")
             return jsonify({'error': 'Message and email address are required'}), 400
 
-        # Create the email message
-        msg = MIMEMultipart()
-        msg['From'] = SENDER_EMAIL
-        msg['To'] = to_email
-        msg['Subject'] = "Water Level Alert"
+        success, error = send_email(to_email, message)
         
-        # Add body to email
-        msg.attach(MIMEText(message, 'plain'))
-        
-        logger.info("Attempting to connect to SMTP server")
-        # Create SMTP session with longer timeout
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=60)
-        server.set_debuglevel(1)  # Enable SMTP debug output
-        
-        logger.info("Starting TLS")
-        server.starttls()
-        
-        logger.info("Attempting login")
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        
-        logger.info("Sending email")
-        server.send_message(msg)
-        server.quit()
-        
-        logger.info("Email sent successfully")
-        return jsonify({
-            'success': True,
-            'status': 'Email alert sent successfully'
-        })
-
-    except smtplib.SMTPAuthenticationError as e:
-        logger.error(f"SMTP Authentication Error: {str(e)}")
-        return jsonify({
-            'error': 'Authentication failed. Please check email credentials.',
-            'details': str(e)
-        }), 401
-        
-    except Exception as e:
-        error_str = str(e)
-        logger.error(f"Error sending email: {error_str}")
-        
-        if "authentication failed" in error_str.lower():
-            error_message = "Authentication failed. Please check email credentials."
+        if success:
+            logger.info("Email sent successfully")
+            return jsonify({
+                'success': True,
+                'status': 'Email alert sent successfully'
+            })
         else:
-            error_message = f"Failed to send email alert: {error_str}"
-            
+            logger.error(f"Failed to send email: {error}")
+            return jsonify({
+                'error': f'Failed to send email: {error}',
+                'details': error
+            }), 500
+
+    except Exception as e:
+        logger.error(f"Request handling error: {str(e)}")
         return jsonify({
-            'error': error_message,
-            'details': error_str
+            'error': 'Server error',
+            'details': str(e)
         }), 500
 
 if __name__ == '__main__':
