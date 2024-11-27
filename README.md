@@ -1,69 +1,154 @@
-# Welcome to your Lovable project
+# AyceSafe - Water Level Monitoring System
 
-## Project info
+## Overview
 
-**URL**: https://lovable.dev/projects/238c205e-99b9-4429-b4d0-909d4fc6f115
+AyceSafe is a comprehensive water level monitoring system that provides real-time updates and alerts for water level changes. The system consists of a React-based frontend and a Python Flask backend, integrated with LoRaWAN sensors for continuous monitoring.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- Real-time water level monitoring
+- SMS and WhatsApp alerts via Infobip integration
+- Historical data analysis and trends
+- Interactive dashboard with maps and charts
+- Weather condition monitoring
+- Responsive design for all devices
 
-**Use Lovable**
+## Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/238c205e-99b9-4429-b4d0-909d4fc6f115) and start prompting.
+Before running the project, ensure you have:
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js (v16 or higher) - [Install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Python (v3.8 or higher)
+- pip (Python package manager)
 
-**Use your preferred IDE**
+## Frontend Setup
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
+1. Clone the repository:
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+2. Install frontend dependencies:
+```sh
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+3. Start the development server:
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The frontend will be available at `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Backend Setup
 
-**Use GitHub Codespaces**
+1. Navigate to the backend directory:
+```sh
+cd backend
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+2. Create a virtual environment (recommended):
+```sh
+python -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+```
 
-## What technologies are used for this project?
+3. Install backend dependencies:
+```sh
+pip install -r requirements.txt
+```
 
-This project is built with .
+4. Configure environment variables:
+Create a `.env` file in the backend directory with the following variables:
+```
+INFOBIP_API_KEY=your_api_key_here
+INFOBIP_BASE_URL=api.infobip.com
+INFOBIP_SENDER=your_sender_number
+```
 
+5. Start the Flask server:
+```sh
+python app.py
+```
+
+The backend API will be available at `http://localhost:5000`
+
+## Project Structure
+
+```
+├── src/
+│   ├── components/     # React components
+│   ├── pages/         # Page components
+│   ├── services/      # API services
+│   └── lib/           # Utilities and types
+├── backend/
+│   ├── app.py         # Flask application
+│   └── requirements.txt
+└── public/            # Static assets
+```
+
+## API Endpoints
+
+### POST /api/send-alert
+Sends WhatsApp alerts through Infobip integration
+- Request body:
+  ```json
+  {
+    "message": "Alert message",
+    "phone": "recipient_phone_number"
+  }
+  ```
+
+## Technologies Used
+
+### Frontend
 - Vite
-- TypeScript
 - React
-- shadcn-ui
+- TypeScript
+- shadcn/ui
 - Tailwind CSS
+- react-leaflet (for maps)
+- recharts (for charts)
+- Tanstack Query
 
-## How can I deploy this project?
+### Backend
+- Flask
+- Flask-CORS
+- python-dotenv
+- Infobip API integration
 
-Simply open [Lovable](https://lovable.dev/projects/238c205e-99b9-4429-b4d0-909d4fc6f115) and click on Share -> Publish.
+## Development Guidelines
 
-## I want to use a custom domain - is that possible?
+1. Follow the existing code style and structure
+2. Use TypeScript for type safety
+3. Implement responsive designs using Tailwind CSS
+4. Utilize shadcn/ui components when possible
+5. Follow RESTful API practices
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Deployment
+
+### Frontend
+The frontend can be deployed using platforms like Netlify, Vercel, or GitHub Pages. For deployment instructions, visit our [deployment documentation](https://docs.lovable.dev/tips-tricks/custom-domain/).
+
+### Backend
+The backend can be deployed to platforms like Heroku, DigitalOcean, or AWS. Ensure environment variables are properly configured in your deployment environment.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## Support
+
+For support and questions, please:
+- Open an issue in the repository
+- Contact the development team
+- Visit our [documentation](https://docs.aycesafe.com)
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
