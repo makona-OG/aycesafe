@@ -22,8 +22,6 @@ account_sid = os.getenv('TWILIO_ACCOUNT_SID')
 auth_token = os.getenv('TWILIO_AUTH_TOKEN')
 twilio_number = os.getenv('TWILIO_WHATSAPP_NUMBER')
 
-client = Client(account_sid, auth_token)
-
 @app.route('/api/send-message', methods=['POST', 'OPTIONS'])
 def send_message():
     if request.method == 'OPTIONS':
@@ -36,33 +34,30 @@ def send_message():
         
     try:
         data = request.get_json()
-        message = data.get('message', '').encode('utf-8').decode('utf-8')  # Ensure UTF-8 encoding
+        message = data.get('message', '').encode('utf-8').decode('utf-8')
         to_number = data.get('to')
         
         if not message or not to_number:
             return jsonify({'error': 'Message and phone number are required'}), 400
 
-        print(f"Attempting to send message to {to_number}")
-        print(f"Using Twilio credentials - SID: {account_sid[:6]}... Token: {auth_token[:6]}...")
-        
         # Format the WhatsApp numbers correctly
         to_number = to_number.replace('whatsapp:', '').replace('+', '').strip()
         from_whatsapp = f'whatsapp:+{twilio_number}'
         to_whatsapp = f'whatsapp:+{to_number}'
 
-        print(f"Sending from {from_whatsapp} to {to_whatsapp}")
-        
-        # Remove any non-ASCII characters that might cause encoding issues
+        # Remove any non-ASCII characters
         message = ''.join(char for char in message if ord(char) < 128)
-        print(f"Sanitized message content: {message}")
-
+        
+        # Create a new client instance for each request
+        client = Client(account_sid, auth_token)
+        
+        # Send message
         message = client.messages.create(
-            body=message,
             from_=from_whatsapp,
+            body=message,
             to=to_whatsapp
         )
 
-        print(f"Message sent successfully with SID: {message.sid}")
         return jsonify({
             'success': True,
             'message_sid': message.sid,
