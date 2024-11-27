@@ -4,8 +4,8 @@ import { sendAlert } from "@/services/smsService";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-// Update with your WhatsApp number - make sure to include country code
-const WHATSAPP_NUMBER = '254712961615';
+// Update with your WhatsApp numbers - make sure to include country code
+const WHATSAPP_NUMBERS = ['254712961615', '254748161383'];
 
 interface Props {
   status: WaterLevelData['status'];
@@ -73,11 +73,19 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
       if (message && !isRetrying) {
         setIsRetrying(true);
         try {
-          console.log('Sending alert to:', WHATSAPP_NUMBER);
-          const result = await sendAlert(message, WHATSAPP_NUMBER);
+          // Send alert to all numbers
+          const results = await Promise.all(
+            WHATSAPP_NUMBERS.map(async (number) => {
+              console.log('Sending alert to:', number);
+              return sendAlert(message, number);
+            })
+          );
 
-          if (result.success) {
-            toast.success('WhatsApp alert sent successfully!');
+          // Check if all alerts were sent successfully
+          const allSuccessful = results.every(result => result.success);
+          
+          if (allSuccessful) {
+            toast.success('WhatsApp alerts sent successfully!');
             
             const newLog = {
               timestamp: new Date().toISOString(),
@@ -88,11 +96,15 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
             saveAlert(newLog);
             setLastStatus(status);
           } else {
-            toast.error(`Failed to send WhatsApp alert: ${result.error}`);
+            const errors = results
+              .filter(result => !result.success)
+              .map(result => result.error)
+              .join(', ');
+            toast.error(`Failed to send some WhatsApp alerts: ${errors}`);
           }
         } catch (error: any) {
           console.error('Failed to send alert:', error);
-          toast.error(`Failed to send WhatsApp alert: ${error.message}`);
+          toast.error(`Failed to send WhatsApp alerts: ${error.message}`);
         } finally {
           setIsRetrying(false);
         }
