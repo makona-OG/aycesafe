@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from twilio.rest import Client
 import os
 from dotenv import load_dotenv
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 load_dotenv()
 
@@ -17,10 +19,11 @@ CORS(app, resources={
     }
 })
 
-# Twilio configuration
-account_sid = os.getenv('TWILIO_ACCOUNT_SID')
-auth_token = os.getenv('TWILIO_AUTH_TOKEN')
-twilio_number = os.getenv('TWILIO_WHATSAPP_NUMBER')
+# Email configuration
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+SENDER_EMAIL = os.getenv('GMAIL_ADDRESS')
+SENDER_PASSWORD = os.getenv('GMAIL_APP_PASSWORD')
 
 @app.route('/api/send-message', methods=['POST', 'OPTIONS'])
 def send_message():
@@ -34,48 +37,43 @@ def send_message():
         
     try:
         data = request.get_json()
-        message = data.get('message', '').encode('utf-8').decode('utf-8')
-        to_number = data.get('to')
+        message = data.get('message', '')
+        to_email = data.get('to')
         
-        if not message or not to_number:
-            return jsonify({'error': 'Message and phone number are required'}), 400
+        if not message or not to_email:
+            return jsonify({'error': 'Message and email address are required'}), 400
 
-        # Format the WhatsApp numbers correctly
-        to_number = to_number.replace('whatsapp:', '').replace('+', '').strip()
-        from_whatsapp = f'whatsapp:+{twilio_number}'
-        to_whatsapp = f'whatsapp:+{to_number}'
-
-        # Remove any non-ASCII characters
-        message = ''.join(char for char in message if ord(char) < 128)
+        # Create the email message
+        msg = MIMEMultipart()
+        msg['From'] = SENDER_EMAIL
+        msg['To'] = to_email
+        msg['Subject'] = "Water Level Alert"
         
-        # Create a new client instance for each request
-        client = Client(account_sid, auth_token)
+        # Add body to email
+        msg.attach(MIMEText(message, 'plain'))
         
-        # Send message
-        message = client.messages.create(
-            from_=from_whatsapp,
-            body=message,
-            to=to_whatsapp
-        )
+        # Create SMTP session
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        
+        # Send email
+        server.send_message(msg)
+        server.quit()
 
         return jsonify({
             'success': True,
-            'message_sid': message.sid,
-            'status': 'WhatsApp message sent successfully'
+            'status': 'Email alert sent successfully'
         })
 
     except Exception as e:
         error_str = str(e)
-        print(f"Error sending message: {error_str}")
+        print(f"Error sending email: {error_str}")
         
-        if "not a valid WhatsApp" in error_str:
-            error_message = "Please join the Twilio sandbox first by sending 'join plenty-drawn' to +1 415 523 8886"
-        elif "authenticate" in error_str.lower():
-            error_message = "Authentication failed. Please check Twilio credentials."
-        elif "rate limit" in error_str.lower():
-            error_message = "Too many requests. Please try again later."
+        if "authentication failed" in error_str.lower():
+            error_message = "Authentication failed. Please check email credentials."
         else:
-            error_message = f"Failed to send WhatsApp message: {error_str}"
+            error_message = f"Failed to send email alert: {error_str}"
             
         return jsonify({
             'error': error_message,
