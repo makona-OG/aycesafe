@@ -26,15 +26,15 @@ def send_message():
         if not message or not to_number:
             return jsonify({'error': 'Message and phone number are required'}), 400
 
-        # Format the WhatsApp numbers correctly (remove any existing formatting)
-        to_number = to_number.replace('whatsapp:', '').replace('+', '')
+        # Format the WhatsApp numbers correctly
+        to_number = to_number.replace('whatsapp:', '').replace('+', '').strip()
         from_whatsapp = f'whatsapp:+{twilio_number}'
         to_whatsapp = f'whatsapp:+{to_number}'
 
         # Send message via Twilio WhatsApp
         message = client.messages.create(
-            from_=from_whatsapp,
             body=message,
+            from_=from_whatsapp,
             to=to_whatsapp
         )
 
@@ -48,7 +48,7 @@ def send_message():
         print(f"Error sending message: {str(e)}")
         return jsonify({
             'error': str(e),
-            'message': 'Failed to send WhatsApp message'
+            'message': 'Failed to send WhatsApp message. Make sure you have joined the Twilio sandbox by sending "join plenty-drawn" to +1 415 523 8886'
         }), 500
 
 if __name__ == '__main__':
