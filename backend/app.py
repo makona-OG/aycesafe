@@ -46,7 +46,7 @@ def send_message():
         print(f"Using Twilio credentials - SID: {account_sid[:6]}... Token: {auth_token[:6]}...")
         
         # Format the WhatsApp numbers correctly
-        to_number = to_number.replace('whatsapp:', '').replace('+', '').trim()
+        to_number = to_number.replace('whatsapp:', '').replace('+', '').strip()  # Changed from trim() to strip()
         from_whatsapp = f'whatsapp:+{twilio_number}'
         to_whatsapp = f'whatsapp:+{to_number}'
 
