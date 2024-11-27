@@ -46,8 +46,9 @@ def send_message():
         # Add body to email
         msg.attach(MIMEText(message, 'plain'))
         
-        # Create SMTP session
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        # Create SMTP session with longer timeout
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=30)
+        server.set_debuglevel(1)  # Enable SMTP debug output
         server.starttls()
         
         # Debug logging
@@ -63,6 +64,13 @@ def send_message():
             'status': 'Email alert sent successfully'
         })
 
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"SMTP Authentication Error: {str(e)}")
+        return jsonify({
+            'error': 'Authentication failed. Please check email credentials.',
+            'details': str(e)
+        }), 401
+        
     except Exception as e:
         error_str = str(e)
         print(f"Error sending email: {error_str}")
