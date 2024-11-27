@@ -10,6 +10,9 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export const sendSMSAlert = async (message: string, to: string) => {
   let lastError;
   
+  // Remove emoji characters from the message
+  const sanitizedMessage = message.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
+  
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       console.log(`Attempt ${attempt} to send message to ${to}`);
@@ -20,7 +23,7 @@ export const sendSMSAlert = async (message: string, to: string) => {
       const response = await axios.post(
         `${BACKEND_URL}/api/send-message`,
         {
-          message,
+          message: sanitizedMessage,
           to: cleanNumber
         },
         {
