@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'http://localhost:5000';  // Change from https to http for local testing
+const BACKEND_URL = 'http://localhost:5000';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000; // 2 seconds
 const REQUEST_TIMEOUT = 30000; // 30 seconds
@@ -27,9 +27,9 @@ export const sendSMSAlert = async (message: string, to: string) => {
           timeout: REQUEST_TIMEOUT,
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          }
+            'Accept': 'application/json'
+          },
+          withCredentials: true
         }
       );
 
