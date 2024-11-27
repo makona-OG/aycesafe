@@ -7,10 +7,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-# Configure CORS with specific headers
 CORS(app, resources={
     r"/*": {
-        "origins": "*",
+        "origins": ["http://localhost:5173", "http://localhost:3000"],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Origin"]
     }
@@ -26,9 +25,9 @@ client = Client(account_sid, auth_token)
 @app.route('/api/send-message', methods=['POST', 'OPTIONS'])
 def send_message():
     if request.method == 'OPTIONS':
-        # Handle preflight request
         response = jsonify({'status': 'ok'})
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 200
         
     try:
@@ -50,7 +49,6 @@ def send_message():
         print(f"Sending from {from_whatsapp} to {to_whatsapp}")
         print(f"Message content: {message}")
 
-        # Send message via Twilio WhatsApp
         message = client.messages.create(
             body=message,
             from_=from_whatsapp,
@@ -58,7 +56,6 @@ def send_message():
         )
 
         print(f"Message sent successfully with SID: {message.sid}")
-
         return jsonify({
             'success': True,
             'message_sid': message.sid,
@@ -76,7 +73,7 @@ def send_message():
         elif "rate limit" in error_str.lower():
             error_message = "Too many requests. Please try again later."
         else:
-            error_message = "Failed to send WhatsApp message. Please try again."
+            error_message = f"Failed to send WhatsApp message: {error_str}"
             
         return jsonify({
             'error': error_message,
@@ -84,5 +81,4 @@ def send_message():
         }), 500
 
 if __name__ == '__main__':
-    # Enable debug mode for better error messages
     app.run(debug=True, host='0.0.0.0', port=5000)
