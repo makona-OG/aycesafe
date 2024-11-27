@@ -3,7 +3,7 @@ import axios from 'axios';
 const BACKEND_URL = 'http://localhost:5000';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000; // 2 seconds
-const REQUEST_TIMEOUT = 30000; // Back to 30 seconds since SMTP needs more time
+const REQUEST_TIMEOUT = 60000; // Increased to 60 seconds for better reliability
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 

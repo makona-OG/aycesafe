@@ -10,7 +10,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const position: [number, number] = [-1.2921, 36.8219]; // Default to Nairobi coordinates
+const position: [number, number] = [-1.2921, 36.8219]; // Nairobi coordinates
 
 export const LocationMap = () => {
   return (
@@ -18,7 +18,7 @@ export const LocationMap = () => {
       <h2 className="text-xl font-semibold mb-4">Sensor Location</h2>
       <MapContainer 
         className="h-[400px] w-full"
-        center={position as [number, number]}
+        center={[-1.2921, 36.8219]}
         zoom={13}
         scrollWheelZoom={false}
       >

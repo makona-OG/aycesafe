@@ -13,8 +13,7 @@ CORS(app, resources={
     r"/*": {
         "origins": ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "*"],
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"],
-        "supports_credentials": True
+        "allow_headers": ["Content-Type", "Authorization"]
     }
 })
 
@@ -47,7 +46,7 @@ def send_message():
         msg.attach(MIMEText(message, 'plain'))
         
         # Create SMTP session with longer timeout
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=30)
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=60)
         server.set_debuglevel(1)  # Enable SMTP debug output
         server.starttls()
         
