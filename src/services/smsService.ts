@@ -10,8 +10,10 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export const sendSMSAlert = async (message: string, to: string) => {
   let lastError;
   
-  // Remove emoji characters from the message
-  const sanitizedMessage = message.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
+  // Remove emoji characters and non-ASCII characters from the message
+  const sanitizedMessage = message
+    .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '') // Remove emojis
+    .replace(/[^\x00-\x7F]/g, ''); // Remove non-ASCII characters
   
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {

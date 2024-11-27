@@ -35,8 +35,8 @@ def send_message():
         return response, 200
         
     try:
-        data = request.json
-        message = data.get('message')
+        data = request.get_json()
+        message = data.get('message', '').encode('utf-8').decode('utf-8')  # Ensure UTF-8 encoding
         to_number = data.get('to')
         
         if not message or not to_number:
@@ -46,12 +46,15 @@ def send_message():
         print(f"Using Twilio credentials - SID: {account_sid[:6]}... Token: {auth_token[:6]}...")
         
         # Format the WhatsApp numbers correctly
-        to_number = to_number.replace('whatsapp:', '').replace('+', '').strip()  # Changed from trim() to strip()
+        to_number = to_number.replace('whatsapp:', '').replace('+', '').strip()
         from_whatsapp = f'whatsapp:+{twilio_number}'
         to_whatsapp = f'whatsapp:+{to_number}'
 
         print(f"Sending from {from_whatsapp} to {to_whatsapp}")
-        print(f"Message content: {message}")
+        
+        # Remove any non-ASCII characters that might cause encoding issues
+        message = ''.join(char for char in message if ord(char) < 128)
+        print(f"Sanitized message content: {message}")
 
         message = client.messages.create(
             body=message,
