@@ -17,8 +17,8 @@ const LocationMap = () => {
     <div className="h-[400px] w-full rounded-lg overflow-hidden border border-border">
       <MapContainer 
         className="h-full w-full"
-        defaultCenter={defaultPosition}
-        defaultZoom={13}
+        center={defaultPosition}
+        zoom={13}
         scrollWheelZoom={false}
       >
         <TileLayer
@@ -30,7 +30,7 @@ const LocationMap = () => {
           icon={customIcon}
         >
           <Popup>
-            Water Level Monitoring Station
+            Sensor Location
           </Popup>
         </Marker>
       </MapContainer>
