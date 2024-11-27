@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = 'https://lovable-flask-backend.onrender.com';
 
 export const sendSMSAlert = async (message: string, to: string) => {
   try {
