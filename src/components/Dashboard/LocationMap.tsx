@@ -1,42 +1,41 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-// Fix for default marker icon
-const icon = L.icon({
-  iconUrl: '/marker-icon.png',
-  shadowUrl: '/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+// Custom icon setup for the marker
+const customIcon = new L.Icon({
+  iconUrl: '/placeholder.svg',
+  iconSize: [25, 25],
+  iconAnchor: [12, 25],
+  popupAnchor: [0, -25],
 });
 
-export const LocationMap = () => {
-  // Example coordinates (replace with actual sensor location)
-  const position: [number, number] = [-1.2921, 36.8219];
+const LocationMap = () => {
+  const defaultPosition: [number, number] = [51.505, -0.09]; // Default to London coordinates
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg">
-      <h2 className="text-xl font-semibold mb-4">Sensor Location</h2>
-      <div className="h-[400px] w-full rounded-lg overflow-hidden">
-        <MapContainer 
-          style={{ height: '100%', width: '100%' }}
-          center={position}
-          zoom={13}
-          scrollWheelZoom={false}
+    <div className="h-[400px] w-full rounded-lg overflow-hidden border border-border">
+      <MapContainer 
+        className="h-full w-full"
+        center={defaultPosition}
+        zoom={13}
+        scrollWheelZoom={false}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <Marker 
+          position={defaultPosition}
+          icon={customIcon}
         >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Marker position={position} icon={icon}>
-            <Popup>
-              Water Level Sensor Location
-            </Popup>
-          </Marker>
-        </MapContainer>
-      </div>
+          <Popup>
+            Water Level Monitoring Station
+          </Popup>
+        </Marker>
+      </MapContainer>
     </div>
   );
 };
+
+export default LocationMap;
