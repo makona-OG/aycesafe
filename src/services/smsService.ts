@@ -3,7 +3,7 @@ import axios from 'axios';
 const BACKEND_URL = 'http://localhost:5000';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000; // 2 seconds
-const REQUEST_TIMEOUT = 30000; // 30 seconds
+const REQUEST_TIMEOUT = 10000; // 10 seconds (reduced from 30)
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -14,21 +14,18 @@ export const sendSMSAlert = async (message: string, to: string) => {
     try {
       console.log(`Attempt ${attempt} to send email to ${to}`);
       
-      const response = await axios.post(
-        `${BACKEND_URL}/api/send-message`,
-        {
+      const response = await axios({
+        method: 'post',
+        url: `${BACKEND_URL}/api/send-message`,
+        data: {
           message,
           to
         },
-        {
-          timeout: REQUEST_TIMEOUT,
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          withCredentials: true
+        timeout: REQUEST_TIMEOUT,
+        headers: {
+          'Content-Type': 'application/json',
         }
-      );
+      });
 
       if (response.data.error) {
         throw new Error(response.data.error);

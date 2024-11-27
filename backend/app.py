@@ -11,10 +11,9 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app, resources={
     r"/*": {
-        "origins": ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
+        "origins": ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "*"],
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Origin"],
-        "expose_headers": ["Content-Type", "Authorization"],
+        "allow_headers": ["Content-Type", "Authorization"],
         "supports_credentials": True
     }
 })
@@ -28,12 +27,7 @@ SENDER_PASSWORD = os.getenv('GMAIL_APP_PASSWORD')
 @app.route('/api/send-message', methods=['POST', 'OPTIONS'])
 def send_message():
     if request.method == 'OPTIONS':
-        response = jsonify({'status': 'ok'})
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-        response.headers.add('Access-Control-Allow-Methods', 'POST,OPTIONS')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-        response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', '*'))
-        return response, 200
+        return jsonify({'status': 'ok'}), 200
         
     try:
         data = request.get_json()
@@ -55,6 +49,9 @@ def send_message():
         # Create SMTP session
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
+        
+        # Debug logging
+        print(f"Attempting to login with email: {SENDER_EMAIL}")
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
         
         # Send email
