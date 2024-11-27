@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import TrendAnalysis from "./pages/TrendAnalysis";
 import About from "./pages/About";
 import Alerts from "./pages/Alerts";
+import Documentation from "./pages/Documentation";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/trend-analysis" element={<TrendAnalysis />} />
           <Route path="/about" element={<About />} />
           <Route path="/alerts" element={<Alerts />} />
+          <Route path="/documentation" element={<Documentation />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
