@@ -4,17 +4,11 @@ import { WaterLevelGauge } from "@/components/Dashboard/WaterLevelGauge";
 import { HistoricalChart } from "@/components/Dashboard/HistoricalChart";
 import { WeatherDisplay } from "@/components/Dashboard/WeatherInfo";
 import { AlertStatus } from "@/components/Dashboard/AlertStatus";
-import { LocationMap } from "@/components/Dashboard/LocationMap";
+import LocationMap from "@/components/Dashboard/LocationMap";
 import { AlertLogs } from "@/components/Dashboard/AlertLogs";
 import { useState, useEffect } from "react";
 import { WaterLevelData, WeatherInfo } from "@/lib/types";
 import { fetchWeatherData } from "@/services/weatherService";
-
-interface AlertLog {
-  timestamp: string;
-  status: WaterLevelData['status'];
-  message: string;
-}
 
 const Index = () => {
   const [waterLevel, setWaterLevel] = useState<WaterLevelData>({
@@ -29,7 +23,7 @@ const Index = () => {
     rainfall: 0
   });
 
-  const [alertLogs, setAlertLogs] = useState<AlertLog[]>([]);
+  const [alertLogs, setAlertLogs] = useState<any[]>([]);
 
   // Simulate water level changes for demonstration
   useEffect(() => {
@@ -64,7 +58,7 @@ const Index = () => {
     }
   }, []);
 
-  const handleAlertSent = (log: AlertLog) => {
+  const handleAlertSent = (log: any) => {
     setAlertLogs(prevLogs => [log, ...prevLogs]);
   };
 
@@ -76,28 +70,45 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Header />
-      <main className="container mx-auto py-8 px-4 flex-grow">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <AlertStatus 
-              status={waterLevel.status}
-              onAlertSent={handleAlertSent}
-            />
+      <main className="flex-grow p-6">
+        <div className="container mx-auto space-y-6">
+          {/* Top Row - Critical Information */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2">
+              <AlertStatus 
+                status={waterLevel.status}
+                onAlertSent={handleAlertSent}
+              />
+            </div>
+            <div>
+              <WaterLevelGauge data={waterLevel} />
+            </div>
           </div>
-          <div>
-            <WaterLevelGauge data={waterLevel} />
+
+          {/* Middle Row - Charts and Weather */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <div className="bg-card rounded-lg p-6 shadow-lg">
+                <h2 className="text-xl font-semibold mb-4">Historical Water Levels</h2>
+                <HistoricalChart data={mockHistoricalData} />
+              </div>
+            </div>
+            <div>
+              <WeatherDisplay data={weather} />
+            </div>
           </div>
-          <div className="lg:col-span-2">
-            <HistoricalChart data={mockHistoricalData} />
-          </div>
-          <div>
-            <WeatherDisplay data={weather} />
-          </div>
-          <div className="lg:col-span-2">
-            <LocationMap />
-          </div>
-          <div className="lg:col-span-1">
-            <AlertLogs logs={alertLogs} />
+
+          {/* Bottom Row - Map and Alerts */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <div className="bg-card rounded-lg p-6 shadow-lg">
+                <h2 className="text-xl font-semibold mb-4">Monitoring Station Location</h2>
+                <LocationMap />
+              </div>
+            </div>
+            <div>
+              <AlertLogs logs={alertLogs} />
+            </div>
           </div>
         </div>
       </main>
