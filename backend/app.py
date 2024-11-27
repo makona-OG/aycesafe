@@ -7,8 +7,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-# Enable CORS for all domains with all methods
-CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "OPTIONS"]}})
+# Configure CORS with specific headers
+CORS(app, resources={
+    r"/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Origin"]
+    }
+})
 
 # Twilio configuration
 account_sid = os.getenv('TWILIO_ACCOUNT_SID')
@@ -20,7 +26,10 @@ client = Client(account_sid, auth_token)
 @app.route('/api/send-message', methods=['POST', 'OPTIONS'])
 def send_message():
     if request.method == 'OPTIONS':
-        return jsonify({}), 200
+        # Handle preflight request
+        response = jsonify({'status': 'ok'})
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        return response, 200
         
     try:
         data = request.json
@@ -31,6 +40,7 @@ def send_message():
             return jsonify({'error': 'Message and phone number are required'}), 400
 
         print(f"Attempting to send message to {to_number}")
+        print(f"Using Twilio credentials - SID: {account_sid[:6]}... Token: {auth_token[:6]}...")
         
         # Format the WhatsApp numbers correctly
         to_number = to_number.replace('whatsapp:', '').replace('+', '').strip()
@@ -38,6 +48,7 @@ def send_message():
         to_whatsapp = f'whatsapp:+{to_number}'
 
         print(f"Sending from {from_whatsapp} to {to_whatsapp}")
+        print(f"Message content: {message}")
 
         # Send message via Twilio WhatsApp
         message = client.messages.create(
@@ -55,14 +66,23 @@ def send_message():
         })
 
     except Exception as e:
-        print(f"Error sending message: {str(e)}")
-        error_message = str(e)
-        if "not a valid WhatsApp" in error_message:
+        error_str = str(e)
+        print(f"Error sending message: {error_str}")
+        
+        if "not a valid WhatsApp" in error_str:
             error_message = "Please join the Twilio sandbox first by sending 'join plenty-drawn' to +1 415 523 8886"
+        elif "authenticate" in error_str.lower():
+            error_message = "Authentication failed. Please check Twilio credentials."
+        elif "rate limit" in error_str.lower():
+            error_message = "Too many requests. Please try again later."
+        else:
+            error_message = "Failed to send WhatsApp message. Please try again."
+            
         return jsonify({
             'error': error_message,
-            'details': str(e)
+            'details': error_str
         }), 500
 
 if __name__ == '__main__':
+    # Enable debug mode for better error messages
     app.run(debug=True, host='0.0.0.0', port=5000)

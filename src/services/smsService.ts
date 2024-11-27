@@ -15,7 +15,7 @@ export const sendSMSAlert = async (message: string, to: string) => {
       console.log(`Attempt ${attempt} to send message to ${to}`);
       
       // Remove any "whatsapp:" prefix if it exists
-      const cleanNumber = to.replace('whatsapp:', '').replace('+', '');
+      const cleanNumber = to.replace('whatsapp:', '').replace('+', '').strip();
       
       const response = await axios.post(
         `${BACKEND_URL}/api/send-message`,
@@ -27,8 +27,7 @@ export const sendSMSAlert = async (message: string, to: string) => {
           timeout: REQUEST_TIMEOUT,
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Accept': 'application/json'
           }
         }
       );
@@ -43,11 +42,13 @@ export const sendSMSAlert = async (message: string, to: string) => {
       lastError = error;
       console.error(`Attempt ${attempt} failed:`, error.message);
       
+      // If we get a specific error from the backend, throw it immediately
       if (error.response?.data?.error) {
         throw new Error(error.response.data.error);
       }
       
       if (attempt < MAX_RETRIES) {
+        console.log(`Waiting ${RETRY_DELAY * attempt}ms before retry...`);
         await sleep(RETRY_DELAY * attempt); // Exponential backoff
         continue;
       }
