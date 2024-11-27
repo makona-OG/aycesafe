@@ -14,8 +14,8 @@ export const sendSMSAlert = async (message: string, to: string) => {
     try {
       console.log(`Attempt ${attempt} to send message to ${to}`);
       
-      // Remove any "whatsapp:" prefix if it exists
-      const cleanNumber = to.replace('whatsapp:', '').replace('+', '').strip();
+      // Remove any "whatsapp:" prefix if it exists and trim whitespace
+      const cleanNumber = to.replace('whatsapp:', '').replace('+', '').trim();
       
       const response = await axios.post(
         `${BACKEND_URL}/api/send-message`,
