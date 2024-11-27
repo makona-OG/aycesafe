@@ -1,12 +1,8 @@
-import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { fetchWeatherData } from '@/services/weatherService';
-import { useToast } from '@/components/ui/use-toast';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import type { LatLngTuple } from 'leaflet';
 
-// Fix Leaflet default icon issue
+// Fix for default marker icons in React-Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -14,117 +10,27 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-interface LocationData {
-  lat: number;
-  lng: number;
-}
-
-interface MapUpdaterProps {
-  center: LatLngTuple;
-}
-
-const FIXED_POINTS = [
-  {
-    position: [-0.406667, 36.962936] as LatLngTuple,
-    name: "Point 1"
-  },
-  {
-    position: [-0.406600, 36.962637] as LatLngTuple,
-    name: "Point 2"
-  }
-];
-
-function MapUpdater({ center }: MapUpdaterProps) {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center);
-  }, [center, map]);
-  return null;
-}
+const position: [number, number] = [-1.2921, 36.8219]; // Default to Nairobi coordinates
 
 export const LocationMap = () => {
-  const [location, setLocation] = useState<LocationData>({ lat: -1.2921, lng: 36.8219 });
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude: lat, longitude: lng } = position.coords;
-          setLocation({ lat, lng });
-
-          try {
-            const weatherData = await fetchWeatherData(lat, lng);
-            const rainfallMessage = weatherData.rainfall > 0 
-              ? `Current rainfall: ${weatherData.rainfall}mm`
-              : 'No rainfall detected';
-              
-            toast({
-              title: "Weather Updated",
-              description: `Temperature: ${weatherData.temperature}°C\n${rainfallMessage}`,
-            });
-          } catch (error) {
-            console.error('Error fetching weather:', error);
-            toast({
-              title: "Error",
-              description: "Failed to fetch weather data",
-              variant: "destructive",
-            });
-          }
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-          toast({
-            title: "Error",
-            description: "Could not get your location. Please enable location services.",
-            variant: "destructive",
-          });
-        }
-      );
-    }
-  }, [toast]);
-
-  const defaultCenter: LatLngTuple = [-0.406667, 36.962936];
-
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold text-gray-900">Location Monitoring</h2>
-      <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
-        <MapContainer 
-          center={defaultCenter}
-          zoom={17} 
-          scrollWheelZoom={true} 
-          style={{ height: '100%', width: '100%' }}
-          attributionControl={true}
-        >
-          <MapUpdater center={[location.lat, location.lng]} />
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <Marker position={[location.lat, location.lng] as LatLngTuple}>
-            <Popup>
-              <div className="p-2">
-                <div className="font-semibold">Your Location</div>
-                <div className="text-sm">Lat: {location.lat.toFixed(4)}</div>
-                <div className="text-sm">Lng: {location.lng.toFixed(4)}</div>
-              </div>
-            </Popup>
-          </Marker>
-
-          {FIXED_POINTS.map((point, index) => (
-            <Marker key={index} position={point.position}>
-              <Popup>
-                <div className="p-2">
-                  <div className="font-semibold">{point.name}</div>
-                  <div className="text-sm">Lat: {point.position[0]}</div>
-                  <div className="text-sm">Lng: {point.position[1]}</div>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
-      </div>
+    <div className="bg-white p-6 rounded-lg shadow-lg">
+      <h2 className="text-xl font-semibold mb-4">Sensor Location</h2>
+      <MapContainer 
+        style={{ height: '400px', width: '100%' }}
+        center={position}
+        zoom={13}
+        scrollWheelZoom={false}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={position}>
+          <Popup>
+            Water Level Sensor Location
+          </Popup>
+        </Marker>
+      </MapContainer>
     </div>
   );
 };
