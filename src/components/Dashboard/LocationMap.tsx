@@ -11,22 +11,23 @@ const customIcon = L.icon({
 });
 
 const LocationMap = () => {
-  const defaultPosition: [number, number] = [51.505, -0.09]; // Default to London coordinates
+  // Fixed coordinates for the sensor location
+  const sensorPosition: [number, number] = [51.505, -0.09];
 
   return (
     <div className="h-[400px] w-full rounded-lg overflow-hidden border border-border">
       <MapContainer 
         className="h-full w-full"
-        center={defaultPosition}
+        center={sensorPosition}
         zoom={13}
         scrollWheelZoom={false}
       >
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <Marker 
-          position={defaultPosition}
+          position={sensorPosition}
           icon={customIcon}
         >
           <Popup>
