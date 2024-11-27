@@ -12,8 +12,8 @@ L.Icon.Default.mergeOptions({
 
 // Define sensor locations
 const sensorLocations: Array<{ position: [number, number]; name: string }> = [
-  { position: [-1.2921, 36.8219], name: "Sensor Location 1" },
-  { position: [-1.2974, 36.8066], name: "Sensor Location 2" }
+  { position: [-0.406667, 36.962936], name: "Sensor Location 1" },
+  { position: [-0.406600, 36.962637], name: "Sensor Location 2" }
 ];
 
 // Calculate center point between two sensors
@@ -28,8 +28,8 @@ export const LocationMap = () => {
       <h2 className="text-xl font-semibold mb-4">Sensor Locations</h2>
       <MapContainer 
         className="h-[400px] w-full"
-        center={centerPosition}
-        zoom={13}
+        center={centerPosition as [number, number]}
+        zoom={18}
         scrollWheelZoom={false}
       >
         <TileLayer
