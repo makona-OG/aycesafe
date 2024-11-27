@@ -52,6 +52,23 @@ const About = () => {
           </p>
         </section>
 
+        {/* Documentation Section */}
+        <section className="mt-8">
+          <h2 className="text-2xl font-semibold text-foreground">Documentation</h2>
+          <p className="mt-4 text-foreground">
+            For detailed information about using AyceSafe, please visit our{" "}
+            <a 
+              href="https://docs.aycesafe.com" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-primary hover:text-secondary underline"
+            >
+              comprehensive documentation
+            </a>
+            . Here you'll find guides, tutorials, and detailed explanations of all features.
+          </p>
+        </section>
+
         {/* Contact Section */}
         <section className="mt-8 mb-8">
           <h2 className="text-2xl font-semibold text-foreground">Contact Us</h2>
