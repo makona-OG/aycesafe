@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 // Update with your WhatsApp numbers - make sure to include country code
-const WHATSAPP_NUMBERS = ['254712961615', '254748161383'];
+const WHATSAPP_NUMBERS = ['254712961615', '254748161383', '254748161383'];
 
 interface Props {
   status: WaterLevelData['status'];
