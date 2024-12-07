@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "vite build && vite preview"
     "dev": "vite",
-    "build": "vite build",
+    "build": "esbuild src/index.ts --bundle --outfile=dist/index.js",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview"
