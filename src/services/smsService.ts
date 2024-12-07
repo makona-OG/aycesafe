@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = 'https://floodwatcher-hub.onrender.com';
 const REQUEST_TIMEOUT = 60000;
 
 export const sendAlert = async (
