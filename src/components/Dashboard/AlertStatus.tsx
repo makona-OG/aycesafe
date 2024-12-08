@@ -12,15 +12,15 @@ interface Props {
   onAlertSent?: (log: { timestamp: string; status: WaterLevelData['status']; message: string }) => void;
 }
 
-const getAlertMessage = (status: WaterLevelData['status'], lastStatus: string | null) => {
+const getAlertMessage = (status: WaterLevelData['status'], lastStatus: string | null, waterLevel: number) => {
   const timestamp = new Date().toLocaleTimeString();
   
   if (status === 'danger' && status !== lastStatus) {
-    return `URGENT ALERT [${timestamp}]: Water levels have reached CRITICAL levels! Immediate action required.`;
+    return `URGENT ALERT [${timestamp}]: Water levels have reached CRITICAL levels at ${waterLevel}m! Immediate action required.`;
   } else if (status === 'warning' && status !== lastStatus) {
-    return `WARNING ALERT [${timestamp}]: Water levels are rising and require attention.`;
+    return `WARNING ALERT [${timestamp}]: Water levels are rising at ${waterLevel}m and require attention.`;
   } else if (status === 'safe' && lastStatus !== 'safe') {
-    return `STATUS UPDATE [${timestamp}]: Water levels have returned to safe levels.`;
+    return `STATUS UPDATE [${timestamp}]: Water levels have returned to safe levels at ${waterLevel}m.`;
   }
   return null;
 };
@@ -68,7 +68,11 @@ export const AlertStatus = ({ status, onAlertSent }: Props) => {
 
   useEffect(() => {
     const sendAlertNotification = async () => {
-      const message = getAlertMessage(status, lastStatus);
+      // Get the current water level from localStorage
+      const currentData = JSON.parse(localStorage.getItem('currentWaterLevel') || '{"level": 0}');
+      const waterLevel = currentData.level;
+      
+      const message = getAlertMessage(status, lastStatus, waterLevel);
       
       if (message && !isRetrying) {
         setIsRetrying(true);
