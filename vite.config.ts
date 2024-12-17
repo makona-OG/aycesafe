@@ -8,6 +8,12 @@ export default defineConfig(({ mode }) => ({
     host: "0.0.0.0",
     port: 8080,
   },
+   base: './', // Ensures relative paths for assets
+  ,
+  build: {
+    outDir: 'dist', // Default directory for Vite builds
+  }
+  ,
   plugins: [
     react(),
     mode === 'development' && componentTagger(),
